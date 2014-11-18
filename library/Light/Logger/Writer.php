@@ -1,7 +1,7 @@
 <?php
-namespace Light;
+namespace Light\Logger;
 
-class LogWriter
+class Writer
 {
     /**
      * @var resource

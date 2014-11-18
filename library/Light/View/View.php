@@ -1,5 +1,5 @@
 <?php
-namespace Light;
+namespace Light\View;
 
 class View
 {
@@ -20,7 +20,7 @@ class View
      */
     public function __construct()
     {
-        $this->data = new \Light\Helper\Set();
+        $this->data = new \Light\Stdlib\Parameters();
     }
 
     /********************************************************************************

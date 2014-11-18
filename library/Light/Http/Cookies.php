@@ -1,7 +1,7 @@
 <?php
 namespace Light\Http;
 
-class Cookies extends \Light\Helper\Set
+class Cookies extends \Light\Stdlib\Parameters
 {
     /**
      * Default cookie settings

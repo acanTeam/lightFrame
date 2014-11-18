@@ -1,5 +1,5 @@
 <?php
-namespace Light;
+namespace Light\Mvc\Route;
 
 class Route
 {

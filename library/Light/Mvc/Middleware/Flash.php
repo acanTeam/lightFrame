@@ -1,7 +1,7 @@
 <?php
-namespace Light\Middleware;
+namespace Light\Mvc\Middleware;
 
-class Flash extends \Light\Middleware implements \ArrayAccess, \IteratorAggregate, \Countable
+class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var array
@@ -36,7 +36,7 @@ class Flash extends \Light\Middleware implements \ArrayAccess, \IteratorAggregat
         $this->loadMessages();
 
         //Prepare flash messaging for current request
-        $env = $this->app->environment();
+        $env = $this->application->environment();
         $env['light.flash'] = $this;
         $this->next->call();
         $this->save();

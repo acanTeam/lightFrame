@@ -1,7 +1,7 @@
 <?php
 namespace Light\Http;
 
-class Headers extends \Light\Helper\Set
+class Headers extends \Light\Stdlib\Parameters
 {
     /********************************************************************************
     * Static interface

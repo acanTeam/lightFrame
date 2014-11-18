@@ -1,5 +1,5 @@
 <?php
-namespace Light;
+namespace Light\Mvc;
 
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
@@ -7,22 +7,22 @@ if (!extension_loaded('mcrypt')) {
     define('MCRYPT_RIJNDAEL_256', 0);
 }
 
-class Light
+class Application
 {
     /**
      * @const string
      */
-    const VERSION = '2.4.2';
+    const VERSION = '0.0.1';
 
     /**
-     * @var \Light\Helper\Set
+     * @var \Light\Stdlib\Parameters
      */
     public $container;
 
     /**
-     * @var array[\Light]
+     * @var array[\Light\Mvc\Application]
      */
-    protected static $apps = array();
+    protected static $applications = array();
 
     /**
      * @var string
@@ -56,65 +56,20 @@ class Light
         'light.after' => array(array())
     );
 
-    /********************************************************************************
-    * PSR-0 Autoloader
-    *
-    * Do not use if you are using Composer to autoload dependencies.
-    *******************************************************************************/
-
     /**
-     * Light PSR-0 autoloader
+     * Constructor, init the application
+     *
+     * @param array $configs Associative array of application configs
      */
-    public static function autoload($className)
-    {
-        $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
-
-        $baseDir = __DIR__;
-
-        if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
-            $baseDir = substr($baseDir, 0, -strlen($thisClass));
-        }
-
-        $className = ltrim($className, '\\');
-        $fileName  = $baseDir;
-        $namespace = '';
-        if ($lastNsPos = strripos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-            $className = substr($className, $lastNsPos + 1);
-            $fileName  .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-        if (file_exists($fileName)) {
-            require $fileName;
-        }
-    }
-
-    /**
-     * Register Light's PSR-0 autoloader
-     */
-    public static function registerAutoloader()
-    {
-        spl_autoload_register(__NAMESPACE__ . "\\Light::autoload");
-    }
-
-    /********************************************************************************
-    * Instantiation and Configuration
-    *******************************************************************************/
-
-    /**
-     * Constructor
-     * @param  array $userSettings Associative array of application settings
-     */
-    public function __construct(array $userSettings = array())
+    public function __construct(array $configs = array())
     {
         // Setup IoC container
-        $this->container = new \Light\Helper\Set();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+        $this->container = new \Light\Stdlib\Parameters();
+        $this->container['configs'] = array_merge(static::getDefaultConfigs(), $configs);
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
-            return \Light\Environment::getInstance();
+            return \Light\Mvc\Environment::getInstance();
         });
 
         // Default request
@@ -129,45 +84,45 @@ class Light
 
         // Default router
         $this->container->singleton('router', function ($c) {
-            return new \Light\Router();
+            return new \Light\Mvc\Router();
         });
 
         // Default view
         $this->container->singleton('view', function ($c) {
-            $viewClass = $c['settings']['view'];
-            $templatesPath = $c['settings']['templates.path'];
+            $viewClass = $c['configs']['view'];
+            $templatesPath = $c['configs']['views.path'];
 
-            $view = ($viewClass instanceOf \Light\View) ? $viewClass : new $viewClass;
+            $view = ($viewClass instanceOf \Light\View\View) ? $viewClass : new $viewClass;
             $view->setTemplatesDirectory($templatesPath);
             return $view;
         });
 
         // Default log writer
-        $this->container->singleton('logWriter', function ($c) {
-            $logWriter = $c['settings']['log.writer'];
+        $this->container->singleton('loggerWriter', function ($c) {
+            $loggerWriter = $c['configs']['logger.writer'];
 
-            return is_object($logWriter) ? $logWriter : new \Light\LogWriter($c['environment']['light.errors']);
+            return is_object($loggerWriter) ? $loggerWriter : new \Light\Logger\Writer($c['environment']['light.errors']);
         });
 
         // Default log
-        $this->container->singleton('log', function ($c) {
-            $log = new \Light\Log($c['logWriter']);
-            $log->setEnabled($c['settings']['log.enabled']);
-            $log->setLevel($c['settings']['log.level']);
+        $this->container->singleton('logger', function ($c) {
+            $logger = new \Light\Logger\Logger($c['loggerWriter']);
+            $logger->setEnabled($c['configs']['logger.enabled']);
+            $logger->setLevel($c['configs']['logger.level']);
             $env = $c['environment'];
-            $env['light.log'] = $log;
+            $env['light.logger'] = $logger;
 
-            return $log;
+            return $logger;
         });
 
         // Default mode
         $this->container['mode'] = function ($c) {
-            $mode = $c['settings']['mode'];
+            $mode = $c['configs']['mode'];
 
-            if (isset($_ENV['SLIM_MODE'])) {
-                $mode = $_ENV['SLIM_MODE'];
+            if (isset($_ENV['LIGHT_MODE'])) {
+                $mode = $_ENV['LIGHT_MODE'];
             } else {
-                $envMode = getenv('SLIM_MODE');
+                $envMode = getenv('LIGHT_MODE');
                 if ($envMode !== false) {
                     $mode = $envMode;
                 }
@@ -178,8 +133,8 @@ class Light
 
         // Define default middleware stack
         $this->middleware = array($this);
-        $this->add(new \Light\Middleware\Flash());
-        $this->add(new \Light\Middleware\MethodOverride());
+        $this->add(new \Light\Mvc\Middleware\Flash());
+        $this->add(new \Light\Mvc\Middleware\MethodOverride());
 
         // Make default if first instance
         if (is_null(static::getInstance())) {
@@ -214,7 +169,7 @@ class Light
      */
     public static function getInstance($name = 'default')
     {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
+        return isset(static::$applications[$name]) ? static::$applications[$name] : null;
     }
 
     /**
@@ -224,7 +179,7 @@ class Light
     public function setName($name)
     {
         $this->name = $name;
-        static::$apps[$name] = $this;
+        static::$applications[$name] = $this;
     }
 
     /**
@@ -237,10 +192,10 @@ class Light
     }
 
     /**
-     * Get default application settings
+     * Get default application configs
      * @return array
      */
-    public static function getDefaultSettings()
+    public static function getDefaultConfigs()
     {
         return array(
             // Application
@@ -248,12 +203,12 @@ class Light
             // Debugging
             'debug' => true,
             // Logging
-            'log.writer' => null,
-            'log.level' => \Light\Log::DEBUG,
-            'log.enabled' => true,
+            'logger.writer' => null,
+            'logger.level' => \Light\Logger\Logger::DEBUG,
+            'logger.enabled' => true,
             // View
-            'templates.path' => './templates',
-            'view' => '\Light\View',
+            'views.path' => './views',
+            'view' => '\Light\View\View',
             // Cookies
             'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',
@@ -273,16 +228,16 @@ class Light
     }
 
     /**
-     * Configure Light Settings
+     * Configure Light configs
      *
-     * This method defines application settings and acts as a setter and a getter.
+     * This method defines application configs and acts as a setter and a getter.
      *
      * If only one argument is specified and that argument is a string, the value
      * of the setting identified by the first argument will be returned, or NULL if
      * that setting does not exist.
      *
      * If only one argument is specified and that argument is an associative array,
-     * the array will be merged into the existing application settings.
+     * the array will be merged into the existing application configs.
      *
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
@@ -297,16 +252,16 @@ class Light
 
         if (is_array($name)) {
             if (true === $value) {
-                $c['settings'] = array_merge_recursive($c['settings'], $name);
+                $c['configs'] = array_merge_recursive($c['configs'], $name);
             } else {
-                $c['settings'] = array_merge($c['settings'], $name);
+                $c['configs'] = array_merge($c['configs'], $name);
             }
         } elseif (func_num_args() === 1) {
-            return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
+            return isset($c['configs'][$name]) ? $c['configs'][$name] : null;
         } else {
-            $settings = $c['settings'];
-            $settings[$name] = $value;
-            $c['settings'] = $settings;
+            $configs = $c['configs'];
+            $configs[$name] = $value;
+            $c['configs'] = $configs;
         }
     }
 
@@ -347,17 +302,14 @@ class Light
         }
     }
 
-    /********************************************************************************
-    * Logging
-    *******************************************************************************/
-
     /**
-     * Get application log
-     * @return \Light\Log
+     * Get application logger
+     *
+     * @return \Light\Logger\Logger
      */
-    public function getLog()
+    public function getLogger()
     {
-        return $this->log;
+        return $this->logger;
     }
 
     /********************************************************************************
@@ -398,7 +350,7 @@ class Light
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new \Light\Route($pattern, $callable, $this->settings['routes.case_sensitive']);
+        $route = new \Light\Mvc\Route\Route($pattern, $callable, $this->configs['routes.case_sensitive']);
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
@@ -824,7 +776,7 @@ class Light
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $settings = array(
+        $configs = array(
             'value' => $value,
             'expires' => is_null($time) ? $this->config('cookies.lifetime') : $time,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
@@ -832,7 +784,7 @@ class Light
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this->response->cookies->set($name, $settings);
+        $this->response->cookies->set($name, $configs);
     }
 
     /**
@@ -924,13 +876,13 @@ class Light
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $settings = array(
+        $configs = array(
             'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this->response->cookies->remove($name, $settings);
+        $this->response->cookies->remove($name, $configs);
     }
 
     /********************************************************************************
@@ -963,21 +915,17 @@ class Light
     }
 
     /**
-     * Stop
-     *
      * The thrown exception will be caught in application's `call()` method
      * and the response will be sent as is to the HTTP client.
      *
-     * @throws \Light\Exception\Stop
+     * @throws \Light\Exception\StopException
      */
     public function stop()
     {
-        throw new \Light\Exception\Stop();
+        throw new \Light\Exception\StopException();
     }
 
     /**
-     * Halt
-     *
      * Stop the application and immediately send the response with a
      * specific status and body to the HTTP client. This may send any
      * type of response: info, success, redirect, client error, or server error.
@@ -1181,27 +1129,21 @@ class Light
         }
     }
 
-    /********************************************************************************
-    * Middleware
-    *******************************************************************************/
-
     /**
      * Add middleware
      *
-     * This method prepends new middleware to the application middleware stack.
-     * The argument must be an instance that subclasses Light_Middleware.
-     *
-     * @param \Light\Middleware
+     * @param \Light\Mvc\AbstractMiddleware
      */
-    public function add(\Light\Middleware $newMiddleware)
+    public function add(\Light\Mvc\Middleware\AbstractMiddleware $middleware)
     {
-        if(in_array($newMiddleware, $this->middleware)) {
-            $middleware_class = get_class($newMiddleware);
-            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
+        if(in_array($middleware, $this->middleware)) {
+            $middlewareClass = get_class($middleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middlewareClass}) twice.");
         }
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this->middleware[0]);
-        array_unshift($this->middleware, $newMiddleware);
+
+        $middleware->setApplication($this);
+        $middleware->setNextMiddleware($this->middleware[0]);
+        array_unshift($this->middleware, $middleware);
     }
 
     /********************************************************************************
@@ -1217,12 +1159,12 @@ class Light
      */
     public function run()
     {
-        set_error_handler(array('\Light\Light', 'handleErrors'));
+        set_error_handler(array('\Light\Mvc\Application', 'handleErrors'));
 
         //Apply final outer middleware layers
         if ($this->config('debug')) {
             //Apply pretty exceptions only in debug to avoid accidental information leakage in production
-            $this->add(new \Light\Middleware\PrettyExceptions());
+            $this->add(new \Light\Mvc\Middleware\PrettyExceptions());
         }
 
         //Invoke middleware and application stack
@@ -1231,8 +1173,9 @@ class Light
         //Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
+        
         // Serialize cookies (with optional encryption)
-        \Light\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
+        \Light\Stdlib\Util::serializeCookies($headers, $this->response->cookies, $this->configs);
 
         //Send headers
         if (headers_sent() === false) {
@@ -1286,7 +1229,7 @@ class Light
                     if ($dispatched) {
                         break;
                     }
-                } catch (\Light\Exception\Pass $e) {
+                } catch (\Light\Exception\PassException $e) {
                     continue;
                 }
             }
@@ -1295,7 +1238,7 @@ class Light
             }
             $this->applyHook('light.after.router');
             $this->stop();
-        } catch (\Light\Exception\Stop $e) {
+        } catch (\Light\Exception\StopException $e) {
             $this->response()->write(ob_get_clean());
         } catch (\Exception $e) {
             if ($this->config('debug')) {
@@ -1303,7 +1246,7 @@ class Light
             } else {
                 try {
                     $this->error($e);
-                } catch (\Light\Exception\Stop $e) {
+                } catch (\Light\Exception\StopException $e) {
                     // Do nothing
                 }
             }
@@ -1364,7 +1307,7 @@ class Light
      */
     protected function defaultError($e)
     {
-        $this->getLog()->error($e);
+        $this->getLogger()->error($e);
         echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

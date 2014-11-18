@@ -1,5 +1,5 @@
 <?php
-namespace Light;
+namespace Light\Mvc;
 
 class Router
 {
@@ -83,7 +83,7 @@ class Router
      * Add a route object to the router
      * @param  \Light\Route     $route      The Light Route
      */
-    public function map(\Light\Route $route)
+    public function map(\Light\Mvc\Route\Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
 

@@ -1,7 +1,7 @@
 <?php
-namespace Light\Middleware;
+namespace Light\Mvc\Middleware;
 
-class PrettyExceptions extends \Light\Middleware
+class PrettyExceptions extends AbstractMiddleware
 {
     /**
      * @var array
@@ -25,13 +25,13 @@ class PrettyExceptions extends \Light\Middleware
         try {
             $this->next->call();
         } catch (\Exception $e) {
-            $log = $this->app->getLog(); // Force Light to append log to env if not already
-            $env = $this->app->environment();
-            $env['light.log'] = $log;
-            $env['light.log']->error($e);
-            $this->app->contentType('text/html');
-            $this->app->response()->status(500);
-            $this->app->response()->body($this->renderBody($env, $e));
+            $logger = $this->application->getLogger(); // Force Light to append log to env if not already
+            $env = $this->application->environment();
+            $env['light.logger'] = $logger;
+            $env['light.logger']->error($e);
+            $this->application->contentType('text/html');
+            $this->application->response()->status(500);
+            $this->application->response()->body($this->renderBody($env, $e));
         }
     }
 

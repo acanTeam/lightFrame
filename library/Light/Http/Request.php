@@ -19,7 +19,7 @@ class Request
 
     /**
      * Application Environment
-     * @var \Light\Environment
+     * @var \Light\Mvc\Environment
      */
     protected $env;
 
@@ -31,19 +31,19 @@ class Request
 
     /**
      * HTTP Cookies
-     * @var \Light\Helper\Set
+     * @var \Light\Stdlib\Parameters
      */
     public $cookies;
 
     /**
      * Constructor
-     * @param \Light\Environment $env
+     * @param \Light\Mvc\Environment $env
      */
-    public function __construct(\Light\Environment $env)
+    public function __construct(\Light\Mvc\Environment $env)
     {
         $this->env = $env;
         $this->headers = new \Light\Http\Headers(\Light\Http\Headers::extract($env));
-        $this->cookies = new \Light\Helper\Set(\Light\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->cookies = new \Light\Stdlib\Parameters(\Light\Stdlib\Util::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**

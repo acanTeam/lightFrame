@@ -1,6 +1,6 @@
 <?php
 namespace Light\Exception;
 
-class Exception
+class Exception extends \Exception
 {
 }

@@ -1,7 +1,7 @@
 <?php
-namespace Light\Middleware;
+namespace Light\Mvc\Middleware;
 
-class MethodOverride extends \Light\Middleware
+class MethodOverride extends AbstractMiddleware
 {
     /**
      * @var array
@@ -30,7 +30,7 @@ class MethodOverride extends \Light\Middleware
      */
     public function call()
     {
-        $env = $this->app->environment();
+        $env = $this->application->environment();
         if (isset($env['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             // Header commonly used by Backbone.js and others
             $env['light.method_override.original_method'] = $env['REQUEST_METHOD'];

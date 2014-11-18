@@ -1,5 +1,5 @@
 <?php
-namespace Light\Http;
+namespace Light\Stdlib;
 
 class Util
 {

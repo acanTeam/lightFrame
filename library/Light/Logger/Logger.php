@@ -1,7 +1,7 @@
 <?php
-namespace Light;
+namespace Light\Logger;
 
-class Log
+class Logger
 {
     const EMERGENCY = 1;
     const ALERT     = 2;

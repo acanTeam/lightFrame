@@ -1,7 +1,7 @@
 <?php
-namespace Light\Helper;
+namespace Light\Stdlib;
 
-class Set implements \ArrayAccess, \Countable, \IteratorAggregate
+class Parameters implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Key-value array of arbitrary data

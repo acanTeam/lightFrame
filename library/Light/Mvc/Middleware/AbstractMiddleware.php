@@ -1,12 +1,12 @@
 <?php
-namespace Light;
+namespace Light\Mvc\Middleware;
 
-abstract class Middleware
+abstract class AbstractMiddleware
 {
     /**
-     * @var \Light\Light Reference to the primary application instance
+     * @var \Light\Mvc\Application Reference to the primary application instance
      */
-    protected $app;
+    protected $application;
 
     /**
      * @var mixed Reference to the next downstream middleware
@@ -16,14 +16,11 @@ abstract class Middleware
     /**
      * Set application
      *
-     * This method injects the primary Light application instance into
-     * this middleware.
-     *
      * @param  \Light\Light $application
      */
     final public function setApplication($application)
     {
-        $this->app = $application;
+        $this->application = $application;
     }
 
     /**
@@ -36,7 +33,7 @@ abstract class Middleware
      */
     final public function getApplication()
     {
-        return $this->app;
+        return $this->application;
     }
 
     /**

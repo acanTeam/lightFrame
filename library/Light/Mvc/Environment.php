@@ -1,5 +1,5 @@
 <?php
-namespace Light;
+namespace Light\Mvc;
 
 class Environment implements \ArrayAccess, \IteratorAggregate
 {
