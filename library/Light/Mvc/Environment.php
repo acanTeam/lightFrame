@@ -18,10 +18,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      *
      * This creates and/or returns an environment instance (singleton)
      * derived from $_SERVER variables. You may override the global server
-     * variables by using `\Light\Environment::mock()` instead.
+     * variables by using `\Light\Mvc\Environment::mock()` instead.
      *
-     * @param  bool             $refresh Refresh properties using global server variables?
-     * @return \Light\Environment
+     * @param bool $refresh Refresh properties using global server variables?
+     * @return \Light\Mvc\Environment
      */
     public static function getInstance($refresh = false)
     {
@@ -35,10 +35,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     /**
      * Get mock environment instance
      *
-     * @param  array       $userSettings
-     * @return \Light\Environment
+     * @param array $configs
+     * @return \Light\Mvc\Environment
      */
-    public static function mock($userSettings = array())
+    public static function mock($configs = array())
     {
         $defaults = array(
             'REQUEST_METHOD' => 'GET',
@@ -56,7 +56,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             'light.input' => '',
             'light.errors' => @fopen('php://stderr', 'w')
         );
-        self::$environment = new self(array_merge($defaults, $userSettings));
+        self::$environment = new self(array_merge($defaults, $configs));
 
         return self::$environment;
     }
@@ -64,69 +64,60 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     /**
      * Constructor (private access)
      *
-     * @param  array|null $settings If present, these are used instead of global server variables
+     * @param array | null $configs If present, these are used instead of global server variables
      */
-    private function __construct($settings = null)
+    private function __construct($configs = null)
     {
-        if ($settings) {
-            $this->properties = $settings;
-        } else {
-            $env = array();
-
-            //The HTTP request method
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
-
-            //The IP
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-
-            // Server params
-            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
-            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
-
-            // Physical path
-            if (strpos($requestUri, $scriptName) !== false) {
-                $physicalPath = $scriptName; // <-- Without rewriting
-            } else {
-                $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
-            }
-            $env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
-
-            // Virtual path
-            $env['PATH_INFO'] = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
-            $env['PATH_INFO'] = str_replace('?' . $queryString, '', $env['PATH_INFO']); // <-- Remove query string
-            $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/'); // <-- Ensure leading slash
-
-            // Query string (without leading "?")
-            $env['QUERY_STRING'] = $queryString;
-
-            //Name of server host that is running the script
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
-
-            //Number of server port that is running the script
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
-
-            //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
-            $headers = \Light\Http\Headers::extract($_SERVER);
-            foreach ($headers as $key => $value) {
-                $env[$key] = $value;
-            }
-
-            //Is the application running under HTTPS or HTTP protocol?
-            $env['light.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
-
-            //Input stream (readable one time only; not available for multipart/form-data requests)
-            $rawInput = @file_get_contents('php://input');
-            if (!$rawInput) {
-                $rawInput = '';
-            }
-            $env['light.input'] = $rawInput;
-
-            //Error stream
-            $env['light.errors'] = @fopen('php://stderr', 'w');
-
-            $this->properties = $env;
+        if ($configs) {
+            $this->properties = $configs;
+            return ;
         }
+
+        $env = array();
+
+        $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD']; // The HTTP request method
+        $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR']; // The IP
+
+        // Server params
+        $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
+        $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+        $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
+
+        // Physical path
+        if (strpos($requestUri, $scriptName) !== false) {
+            $physicalPath = $scriptName; // <-- Without rewriting
+        } else {
+            $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
+        }
+        $env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
+
+        // Virtual path
+        $env['PATH_INFO'] = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
+        $env['PATH_INFO'] = str_replace('?' . $queryString, '', $env['PATH_INFO']); // <-- Remove query string
+        $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/'); // <-- Ensure leading slash
+
+        $env['QUERY_STRING'] = $queryString; // Query string (without leading "?")
+        $env['SERVER_NAME'] = $_SERVER['SERVER_NAME']; // Name of server host that is running the script
+        $env['SERVER_PORT'] = $_SERVER['SERVER_PORT']; // Number of server port that is running the script
+
+        // HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+        $headers = \Light\Http\Headers::extract($_SERVER);
+        foreach ($headers as $key => $value) {
+            $env[$key] = $value;
+        }
+
+        // Is the application running under HTTPS or HTTP protocol?
+        $env['light.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
+
+        // Input stream (readable one time only; not available for multipart/form-data requests)
+        $rawInput = @file_get_contents('php://input');
+        if (!$rawInput) {
+            $rawInput = '';
+        }
+        $env['light.input'] = $rawInput;
+        $env['light.errors'] = @fopen('php://stderr', 'w'); // Error stream
+
+        $this->properties = $env;
     }
 
     /**
@@ -142,11 +133,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetGet($offset)
     {
-        if (isset($this->properties[$offset])) {
-            return $this->properties[$offset];
-        } else {
-            return null;
-        }
+        $property = isset($this->properties[$offset]) ? $this->properties[$offset] : null;
+        return $property;
     }
 
     /**

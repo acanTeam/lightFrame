@@ -9,8 +9,9 @@ class Writer
     protected $resource;
 
     /**
-     * Constructor
-     * @param  resource                  $resource
+     * Constructor initialize the logger writer
+     *
+     * @param resource $resource
      * @throws \InvalidArgumentException If invalid resource
      */
     public function __construct($resource)
@@ -18,14 +19,16 @@ class Writer
         if (!is_resource($resource)) {
             throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
         }
+
         $this->resource = $resource;
     }
 
     /**
      * Write message
-     * @param  mixed     $message
-     * @param  int       $level
-     * @return int|bool
+     *
+     * @param mixed $message
+     * @param int $level
+     * @return int | bool
      */
     public function write($message, $level = null)
     {

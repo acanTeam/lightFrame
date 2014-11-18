@@ -4,170 +4,171 @@ namespace Light\View;
 class View
 {
     /**
-     * Data available to the view templates
-     * @var \Light\Helper\Set
+     * Datas available to the view
+     * @var \Light\Stdlib\Parameters
      */
-    protected $data;
+    protected $datas;
 
     /**
-     * Path to templates base directory (without trailing slash)
+     * Paths of view
      * @var string
      */
-    protected $templatesDirectory;
+    protected $templatePaths;
 
     /**
-     * Constructor
+     * Constructor initialize the View.
      */
     public function __construct()
     {
-        $this->data = new \Light\Stdlib\Parameters();
+        $this->datas = new \Light\Stdlib\Parameters();
     }
 
-    /********************************************************************************
-     * Data methods
-     *******************************************************************************/
-
     /**
-     * Does view data have value with key?
-     * @param  string  $key
+     * Does view datas have value with key?
+     *
+     * @param string $key
      * @return boolean
      */
     public function has($key)
     {
-        return $this->data->has($key);
+        return $this->datas->has($key);
     }
 
     /**
-     * Return view data value with key
+     * Return view datas value with key
+     *
      * @param  string $key
      * @return mixed
      */
     public function get($key)
     {
-        return $this->data->get($key);
+        return $this->datas->get($key);
     }
 
     /**
-     * Set view data value with key
+     * Set view datas value with key
+     *
      * @param string $key
      * @param mixed $value
      */
     public function set($key, $value)
     {
-        $this->data->set($key, $value);
+        $this->datas->set($key, $value);
     }
 
     /**
-     * Set view data value as Closure with key
+     * Set view datas value as Closure with key
+     *
      * @param string $key
      * @param mixed $value
      */
     public function keep($key, Closure $value)
     {
-        $this->data->keep($key, $value);
+        $this->datas->keep($key, $value);
     }
 
     /**
-     * Return view data
+     * Get view datas
+     *
      * @return array
      */
     public function all()
     {
-        return $this->data->all();
+        return $this->datas->all();
     }
 
     /**
-     * Replace view data
-     * @param  array  $data
+     * Replace view datas
+     *
+     * @param  array  $datas
      */
-    public function replace(array $data)
+    public function replace(array $datas)
     {
-        $this->data->replace($data);
+        $this->datas->replace($datas);
     }
 
     /**
-     * Clear view data
+     * Clear view datas
      */
     public function clear()
     {
-        $this->data->clear();
+        $this->datas->clear();
     }
-
-    /********************************************************************************
-     * Legacy data methods
-     *******************************************************************************/
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * Get data from view
+     * Get datas from view
      */
     public function getData($key = null)
     {
         if (!is_null($key)) {
-            return isset($this->data[$key]) ? $this->data[$key] : null;
+            return isset($this->datas[$key]) ? $this->datas[$key] : null;
         } else {
-            return $this->data->all();
+            return $this->datas->all();
         }
     }
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * Set data for view
+     * Set datas for view
      */
-    public function setData()
+    public function setDatas()
     {
         $args = func_get_args();
         if (count($args) === 1 && is_array($args[0])) {
-            $this->data->replace($args[0]);
+            $this->datas->replace($args[0]);
         } elseif (count($args) === 2) {
             // Ensure original behavior is maintained. DO NOT invoke stored Closures.
             if (is_object($args[1]) && method_exists($args[1], '__invoke')) {
-                $this->data->set($args[0], $this->data->protect($args[1]));
+                $this->datas->set($args[0], $this->datas->protect($args[1]));
             } else {
-                $this->data->set($args[0], $args[1]);
+                $this->datas->set($args[0], $args[1]);
             }
         } else {
-            throw new \InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
+            throw new \InvalidArgumentException('Cannot set View datas with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
         }
     }
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * Append data to view
-     * @param  array $data
+     * Append datas to view
+     * @param  array $datas
      */
-    public function appendData($data)
+    public function appendData($datas)
     {
-        if (!is_array($data)) {
-            throw new \InvalidArgumentException('Cannot append view data. Expected array argument.');
+        if (!is_array($datas)) {
+            throw new \InvalidArgumentException('Cannot append view datas. Expected array argument.');
         }
-        $this->data->replace($data);
-    }
-
-    /********************************************************************************
-     * Resolve template paths
-     *******************************************************************************/
-
-    /**
-     * Set the base directory that contains view templates
-     * @param   string $directory
-     * @throws  \InvalidArgumentException If directory is not a directory
-     */
-    public function setTemplatesDirectory($directory)
-    {
-        $this->templatesDirectory = rtrim($directory, DIRECTORY_SEPARATOR);
+        $this->datas->replace($datas);
     }
 
     /**
-     * Get templates base directory
-     * @return string
+     * Set the base paths that contains view templates
+     *
+     * @param array $paths
+     * @throws \InvalidArgumentException If directory is not a directory
      */
-    public function getTemplatesDirectory()
+    public function setTemplatePaths($paths)
     {
-        return $this->templatesDirectory;
+        $templatePaths = array();
+        foreach ($paths as $path) {
+            $templatePaths[] = rtrim($path, DIRECTORY_SEPARATOR);
+        }
+
+        $this->templatePaths = $templatePaths;
+    }
+
+    /**
+     * Get templates base paths
+     *
+     * @return array 
+     */
+    public function getTemplatePaths()
+    {
+        return $this->templatePaths;
     }
 
     /**
@@ -175,61 +176,61 @@ class View
      * @param  string $file The template file pathname relative to templates base directory
      * @return string
      */
-    public function getTemplatePathname($file)
+    public function getTemplateFile($template)
     {
-        return $this->templatesDirectory . DIRECTORY_SEPARATOR . ltrim($file, DIRECTORY_SEPARATOR);
+        $templateFile = '';
+        foreach ($this->templatePaths as $templatePath) {
+            $templateFile = $templatePath . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
+            if (file_exists($templateFile)) {
+                break;
+            }
+        }
+
+        return $templateFile;
     }
 
-    /********************************************************************************
-     * Rendering
-     *******************************************************************************/
-
     /**
-     * Display template
+     * Display template. This method echoes the rendered template to the current output buffer
      *
-     * This method echoes the rendered template to the current output buffer
-     *
-     * @param  string   $template   Pathname of template file relative to templates directory
-     * @param  array    $data       Any additonal data to be passed to the template.
+     * @param string $template Pathname of template file relative to templates directory
+     * @param array $datas Any additonal datas to be passed to the template.
      */
-    public function display($template, $data = null)
+    public function display($template, $datas = null)
     {
-        echo $this->fetch($template, $data);
+        echo $this->fetch($template, $datas);
     }
 
     /**
      * Return the contents of a rendered template file
      *
-     * @param    string $template   The template pathname, relative to the template base directory
-     * @param    array  $data       Any additonal data to be passed to the template.
-     * @return string               The rendered template
+     * @param string $template The template pathname, relative to the template base directory
+     * @param array  $datas Any additonal datas to be passed to the template.
+     * @return string The rendered template
      */
-    public function fetch($template, $data = null)
+    public function fetch($template, $datas = null)
     {
-        return $this->render($template, $data);
+        return $this->render($template, $datas);
     }
 
     /**
-     * Render a template file
+     * Render a template file. This method should be overridden by custom view subclasses
      *
-     * NOTE: This method should be overridden by custom view subclasses
-     *
-     * @param  string $template     The template pathname, relative to the template base directory
-     * @param  array  $data         Any additonal data to be passed to the template.
-     * @return string               The rendered template
-     * @throws \RuntimeException    If resolved template pathname is not a valid file
+     * @param string $template The template pathname, relative to the template base directory
+     * @param array $datas Any additonal datas to be passed to the template.
+     * @return string The rendered template
+     * @throws \RuntimeException If resolved template pathname is not a valid file
      */
-    protected function render($template, $data = null)
+    protected function render($template, $datas = null)
     {
-        $templatePathname = $this->getTemplatePathname($template);
-        if (!is_file($templatePathname)) {
+        $templateFile = $this->getTemplateFile($template);
+        if (!is_file($templateFile)) {
             throw new \RuntimeException("View cannot render `$template` because the template does not exist");
         }
 
-        $data = array_merge($this->data->all(), (array) $data);
-        extract($data);
+        $datas = array_merge($this->datas->all(), (array) $datas);
+        extract($datas);
         ob_start();
-        require $templatePathname;
+        require $templateFile;
 
         return ob_get_clean();
     }

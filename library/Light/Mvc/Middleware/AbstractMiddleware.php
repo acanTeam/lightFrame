@@ -16,7 +16,7 @@ abstract class AbstractMiddleware
     /**
      * Set application
      *
-     * @param  \Light\Light $application
+     * @param  \Light\Mvc\Application $application
      */
     final public function setApplication($application)
     {
@@ -26,10 +26,7 @@ abstract class AbstractMiddleware
     /**
      * Get application
      *
-     * This method retrieves the application previously injected
-     * into this middleware.
-     *
-     * @return \Light\Light
+     * @return \Light\Mvc\Application
      */
     final public function getApplication()
     {
@@ -39,11 +36,7 @@ abstract class AbstractMiddleware
     /**
      * Set next middleware
      *
-     * This method injects the next downstream middleware into
-     * this middleware so that it may optionally be called
-     * when appropriate.
-     *
-     * @param \Light|\Light\Middleware
+     * @return \Light\Mvc\Application | \Light\Mvc\Middleware\AbstractMiddleware
      */
     final public function setNextMiddleware($nextMiddleware)
     {
@@ -53,10 +46,7 @@ abstract class AbstractMiddleware
     /**
      * Get next middleware
      *
-     * This method retrieves the next downstream middleware
-     * previously injected into this middleware.
-     *
-     * @return \Light\Light|\Light\Middleware
+     * @return \Light\Mvc\Application | \Light\Mvc\Middleware\AbstractMiddleware
      */
     final public function getNextMiddleware()
     {
@@ -64,8 +54,6 @@ abstract class AbstractMiddleware
     }
 
     /**
-     * Call
-     *
      * Perform actions specific to this middleware and optionally
      * call the next downstream middleware.
      */

@@ -90,10 +90,10 @@ class Application
         // Default view
         $this->container->singleton('view', function ($c) {
             $viewClass = $c['configs']['view'];
-            $templatesPath = $c['configs']['views.path'];
+            $templatePaths = $c['configs']['template.paths'];
 
             $view = ($viewClass instanceOf \Light\View\View) ? $viewClass : new $viewClass;
-            $view->setTemplatesDirectory($templatesPath);
+            $view->setTemplatePaths($templatePaths);
             return $view;
         });
 
@@ -207,7 +207,7 @@ class Application
             'logger.level' => \Light\Logger\Logger::DEBUG,
             'logger.enabled' => true,
             // View
-            'views.path' => './views',
+            'template.paths' => array('./views'),
             'view' => '\Light\View\View',
             // Cookies
             'cookies.encrypt' => false,
@@ -1214,7 +1214,7 @@ class Application
     {
         try {
             if (isset($this->environment['light.flash'])) {
-                $this->view()->setData('flash', $this->environment['light.flash']);
+                $this->view()->setDatas('flash', $this->environment['light.flash']);
             }
             $this->applyHook('light.before');
             ob_start();
