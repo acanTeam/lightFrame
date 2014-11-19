@@ -6,24 +6,23 @@ class MethodOverride extends AbstractMiddleware
     /**
      * @var array
      */
-    protected $settings;
+    protected $configs;
 
     /**
-     * Constructor
-     * @param  array  $settings
+     * Constructor, initialize the methodOverride.
+     *
+     * @param array $configs
      */
-    public function __construct($settings = array())
+    public function __construct($configs = array())
     {
-        $this->settings = array_merge(array('key' => '_METHOD'), $settings);
+        $this->configs = array_merge(array('key' => '_METHOD'), $configs);
     }
 
     /**
-     * Call
-     *
      * Implements Light middleware interface. This method is invoked and passed
      * an array of environment variables. This middleware inspects the environment
      * variables for the HTTP method override parameter; if found, this middleware
-     * modifies the environment settings so downstream middleware and/or the Light
+     * modifies the environment configs so downstream middleware and/or the Light
      * application will treat the request with the desired HTTP method.
      *
      * @return array[status, header, body]
@@ -38,7 +37,7 @@ class MethodOverride extends AbstractMiddleware
         } elseif (isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST') {
             // HTML Form Override
             $req = new \Light\Http\Request($env);
-            $method = $req->post($this->settings['key']);
+            $method = $req->post($this->configs['key']);
             if ($method) {
                 $env['light.method_override.original_method'] = $env['REQUEST_METHOD'];
                 $env['REQUEST_METHOD'] = strtoupper($method);

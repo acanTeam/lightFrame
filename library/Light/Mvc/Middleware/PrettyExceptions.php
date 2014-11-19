@@ -6,19 +6,19 @@ class PrettyExceptions extends AbstractMiddleware
     /**
      * @var array
      */
-    protected $settings;
+    protected $configs;
 
     /**
-     * Constructor
-     * @param array $settings
+     * Constructor, initialize the prettyException.
+     * @param array $configs
      */
-    public function __construct($settings = array())
+    public function __construct($configs = array())
     {
-        $this->settings = $settings;
+        $this->configs = $configs;
     }
 
     /**
-     * Call
+     * Deal with the prettyException
      */
     public function call()
     {
@@ -37,8 +37,9 @@ class PrettyExceptions extends AbstractMiddleware
 
     /**
      * Render response body
-     * @param  array      $env
-     * @param  \Exception $exception
+     *
+     * @param array $env
+     * @param \Exception $exception
      * @return string
      */
     protected function renderBody(&$env, $exception)

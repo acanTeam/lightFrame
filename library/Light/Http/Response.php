@@ -84,10 +84,10 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     );
 
     /**
-     * Constructor
-     * @param string                   $body   The HTTP response body
-     * @param int                      $status The HTTP response status
-     * @param \Light\Http\Headers|array $headers The HTTP response headers
+     * Constructor, initialize the reponse
+     * @param string $body The HTTP response body
+     * @param int $status The HTTP response status
+     * @param \Light\Http\Headers | array $headers The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $headers = array())
     {
@@ -108,50 +108,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->status = (int)$status;
     }
 
-    /**
-     * DEPRECATION WARNING! Use `getStatus` or `setStatus` instead.
-     *
-     * Get and set status
-     * @param  int|null $status
-     * @return int
-     */
-    public function status($status = null)
-    {
-        if (!is_null($status)) {
-            $this->status = (int) $status;
-        }
-
-        return $this->status;
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `headers` property directly.
-     *
-     * Get and set header
-     * @param  string      $name  Header name
-     * @param  string|null $value Header value
-     * @return string      Header value
-     */
-    public function header($name, $value = null)
-    {
-        if (!is_null($value)) {
-            $this->headers->set($name, $value);
-        }
-
-        return $this->headers->get($name);
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `headers` property directly.
-     *
-     * Get headers
-     * @return \Light\Http\Headers
-     */
-    public function headers()
-    {
-        return $this->headers;
-    }
-
     public function getBody()
     {
         return $this->body;
@@ -163,34 +119,15 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! use `getBody` or `setBody` instead.
-     *
-     * Get and set body
-     * @param  string|null $body Content of HTTP response body
-     * @return string
-     */
-    public function body($body = null)
-    {
-        if (!is_null($body)) {
-            $this->write($body, true);
-        }
-
-        return $this->body;
-    }
-
-    /**
      * Append HTTP response body
-     * @param  string   $body       Content to append to the current HTTP response body
-     * @param  bool     $replace    Overwrite existing response body?
-     * @return string               The updated HTTP response body
+     *
+     * @param string $body Content to append to the current HTTP response body
+     * @param bool $replace Overwrite existing response body?
+     * @return string The updated HTTP response body
      */
     public function write($body, $replace = false)
     {
-        if ($replace) {
-            $this->body = $body;
-        } else {
-            $this->body .= (string)$body;
-        }
+        $this->body = $replace ? $body : $this->body . $body;
         $this->length = strlen($this->body);
 
         return $this->body;
@@ -202,24 +139,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! Use `getLength` or `write` or `body` instead.
-     *
-     * Get and set length
-     * @param  int|null $length
-     * @return int
-     */
-    public function length($length = null)
-    {
-        if (!is_null($length)) {
-            $this->length = (int) $length;
-        }
-
-        return $this->length;
-    }
-
-    /**
-     * Finalize
-     *
      * This prepares this response and returns an array
      * of [status, headers, body]. This array is passed to outer middleware
      * if available or directly to the Light run method.
@@ -239,60 +158,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! Access `cookies` property directly.
-     *
-     * Set cookie
-     *
-     * Instead of using PHP's `setcookie()` function, Light manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Light_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Light allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
-     *
-     * @param string        $name    The name of the cookie
-     * @param string|array  $value   If string, the value of cookie; if array, properties for
-     *                               cookie including: value, expire, path, domain, secure, httponly
-     */
-    public function setCookie($name, $value)
-    {
-        // Util::setCookieHeader($this->header, $name, $value);
-        $this->cookies->set($name, $value);
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `cookies` property directly.
-     *
-     * Delete cookie
-     *
-     * Instead of using PHP's `setcookie()` function, Light manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Light_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Light allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
-     *
-     * This method will set a cookie with the given name that has an expiration time in the past; this will
-     * prompt the HTTP client to invalidate and remove the client-side cookie. Optionally, you may
-     * also pass a key/value array as the second argument. If the "domain" key is present in this
-     * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
-     * sent with this response will adopt all properties of the second argument.
-     *
-     * @param string $name     The name of the cookie
-     * @param array  $settings Properties for cookie including: value, expire, path, domain, secure, httponly
-     */
-    public function deleteCookie($name, $settings = array())
-    {
-        $this->cookies->remove($name, $settings);
-        // Util::deleteCookieHeader($this->header, $name, $value);
-    }
-
-    /**
-     * Redirect
-     *
      * This method prepares this response to return an HTTP Redirect response
      * to the HTTP client.
      *
-     * @param string $url    The redirect destination
-     * @param int    $status The redirect HTTP status code
+     * @param string $url The redirect destination
+     * @param int $status The redirect HTTP status code
      */
     public function redirect ($url, $status = 302)
     {
@@ -391,11 +261,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! ArrayAccess interface will be removed from \Light\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     */
-
-    /**
      * Array Access: Offset Exists
      */
     public function offsetExists($offset)
@@ -428,43 +293,14 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! Countable interface will be removed from \Light\Http\Response.
-     * Call `count` on `headers` or `cookies` properties directly.
-     *
-     * Countable: Count
-     */
-    public function count()
-    {
-        return count($this->headers);
-    }
-
-    /**
-     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Light\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     *
-     * Get Iterator
-     *
-     * This returns the contained `\Light\Http\Headers` instance which
-     * is itself iterable.
-     *
-     * @return \Light\Http\Headers
-     */
-    public function getIterator()
-    {
-        return $this->headers->getIterator();
-    }
-
-    /**
      * Get message for HTTP status code
-     * @param  int         $status
+     *
+     * @param int $status
      * @return string|null
      */
     public static function getMessageForCode($status)
     {
-        if (isset(self::$messages[$status])) {
-            return self::$messages[$status];
-        } else {
-            return null;
-        }
+        $result = isset(self::$messages[$status]) ? self::$messages[$status] : null;
+        return $result;
     }
 }

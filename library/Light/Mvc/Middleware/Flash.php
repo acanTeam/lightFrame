@@ -6,7 +6,7 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     /**
      * @var array
      */
-    protected $settings;
+    protected $configs;
 
     /**
      * @var array
@@ -14,21 +14,22 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     protected $messages;
 
     /**
-     * Constructor
-     * @param  array  $settings
+     * Constructor, initialize flash
+     *
+     * @param  array  $configs
      */
-    public function __construct($settings = array())
+    public function __construct($configs = array())
     {
-        $this->settings = array_merge(array('key' => 'light.flash'), $settings);
+        $this->configs = array_merge(array('key' => 'light.flash'), $configs);
         $this->messages = array(
-            'prev' => array(), //flash messages from prev request (loaded when middleware called)
-            'next' => array(), //flash messages for next request
-            'now' => array() //flash messages for current request
+            'prev' => array(), // flash messages from prev request (loaded when middleware called)
+            'next' => array(), // flash messages for next request
+            'now' => array() // flash messages for current request
         );
     }
 
     /**
-     * Call
+     * Deal with the flash
      */
     public function call()
     {
@@ -43,12 +44,10 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     }
 
     /**
-     * Now
-     *
      * Specify a flash message for a given key to be shown for the current request
      *
-     * @param  string $key
-     * @param  string $value
+     * @param string $key
+     * @param string $value
      */
     public function now($key, $value)
     {
@@ -56,12 +55,10 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     }
 
     /**
-     * Set
-     *
      * Specify a flash message for a given key to be shown for the next request
      *
-     * @param  string $key
-     * @param  string $value
+     * @param string $key
+     * @param string $value
      */
     public function set($key, $value)
     {
@@ -69,8 +66,6 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     }
 
     /**
-     * Keep
-     *
      * Retain flash messages from the previous request for the next request
      */
     public function keep()
@@ -85,7 +80,7 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
      */
     public function save()
     {
-        $_SESSION[$this->settings['key']] = $this->messages['next'];
+        $_SESSION[$this->configs['key']] = $this->messages['next'];
     }
 
     /**
@@ -93,8 +88,8 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
      */
     public function loadMessages()
     {
-        if (isset($_SESSION[$this->settings['key']])) {
-            $this->messages['prev'] = $_SESSION[$this->settings['key']];
+        if (isset($_SESSION[$this->configs['key']])) {
+            $this->messages['prev'] = $_SESSION[$this->configs['key']];
         }
     }
 
@@ -162,7 +157,4 @@ class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggrega
     {
         return count($this->getMessages());
     }
-
-
-
 }

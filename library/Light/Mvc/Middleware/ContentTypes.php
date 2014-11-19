@@ -9,10 +9,11 @@ class ContentTypes extends \Light\Middleware
     protected $contentTypes;
 
     /**
-     * Constructor
-     * @param array $settings
+     * Constructor, initialize the contentTypes
+     *
+     * @param array $configs
      */
-    public function __construct($settings = array())
+    public function __construct($configs = array())
     {
         $defaults = array(
             'application/json' => array($this, 'parseJson'),
@@ -20,17 +21,18 @@ class ContentTypes extends \Light\Middleware
             'text/xml' => array($this, 'parseXml'),
             'text/csv' => array($this, 'parseCsv')
         );
-        $this->contentTypes = array_merge($defaults, $settings);
+
+        $this->contentTypes = array_merge($defaults, $configs);
     }
 
     /**
-     * Call
+     * Deal with the content-types
      */
     public function call()
     {
-        $mediaType = $this->app->request()->getMediaType();
+        $mediaType = $this->application->request()->getMediaType();
         if ($mediaType) {
-            $env = $this->app->environment();
+            $env = $this->application->environment();
             $env['light.input_original'] = $env['light.input'];
             $env['light.input'] = $this->parse($env['light.input'], $mediaType);
         }
@@ -38,80 +40,68 @@ class ContentTypes extends \Light\Middleware
     }
 
     /**
-     * Parse input
-     *
      * This method will attempt to parse the request body
      * based on its content type if available.
      *
-     * @param  string $input
-     * @param  string $contentType
+     * @param string $input
+     * @param string $contentType
      * @return mixed
      */
-    protected function parse ($input, $contentType)
+    protected function parse($input, $contentType)
     {
+        $return = $input;
         if (isset($this->contentTypes[$contentType]) && is_callable($this->contentTypes[$contentType])) {
             $result = call_user_func($this->contentTypes[$contentType], $input);
-            if ($result) {
-                return $result;
-            }
+            $return = $result ? $result : $input;
         }
 
-        return $input;
+        return $return;
     }
 
     /**
-     * Parse JSON
+     * This method converts the raw JSON input into an associative array.
      *
-     * This method converts the raw JSON input
-     * into an associative array.
-     *
-     * @param  string       $input
-     * @return array|string
+     * @param string $input
+     * @return array | string
      */
     protected function parseJson($input)
     {
+        $result = false;
         if (function_exists('json_decode')) {
             $result = json_decode($input, true);
-            if ($result) {
-                return $result;
-            }
         }
+
+        return $result;
     }
 
     /**
-     * Parse XML
+     * This method creates a SimpleXMLElement based upon the XML input. If the SimpleXML
+     * extension is not available, the raw input will be returned unchanged.
      *
-     * This method creates a SimpleXMLElement
-     * based upon the XML input. If the SimpleXML
-     * extension is not available, the raw input
-     * will be returned unchanged.
-     *
-     * @param  string                  $input
+     * @param string $input
      * @return \SimpleXMLElement|string
      */
     protected function parseXml($input)
     {
-        if (class_exists('SimpleXMLElement')) {
-            try {
-                $backup = libxml_disable_entity_loader(true);
-                $result = new \SimpleXMLElement($input);
-                libxml_disable_entity_loader($backup);
-                return $result;
-            } catch (\Exception $e) {
-                // Do nothing
-            }
+        if (!class_exists('SimpleXMLElement')) {
+            return $input;
         }
 
-        return $input;
+        try {
+            $backup = libxml_disable_entity_loader(true);
+            $result = new \SimpleXMLElement($input);
+            libxml_disable_entity_loader($backup);
+            return $result;
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 
     /**
-     * Parse CSV
-     *
      * This method parses CSV content into a numeric array
      * containing an array of data for each CSV line.
      *
-     * @param  string $input
+     * @param string $input
      * @return array
      */
     protected function parseCsv($input)
@@ -119,6 +109,7 @@ class ContentTypes extends \Light\Middleware
         $temp = fopen('php://memory', 'rw');
         fwrite($temp, $input);
         fseek($temp, 0);
+        
         $res = array();
         while (($data = fgetcsv($temp)) !== false) {
             $res[] = $data;

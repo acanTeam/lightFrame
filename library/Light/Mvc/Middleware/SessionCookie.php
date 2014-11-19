@@ -6,14 +6,14 @@ class SessionCookie extends \Light\Middleware
     /**
      * @var array
      */
-    protected $settings;
+    protected $configs;
 
     /**
-     * Constructor
+     * Constructor, initialize the sessionCookie.
      *
-     * @param array $settings
+     * @param array $configs
      */
-    public function __construct($settings = array())
+    public function __construct($configs = array())
     {
         $defaults = array(
             'expires' => '20 minutes',
@@ -23,9 +23,9 @@ class SessionCookie extends \Light\Middleware
             'httponly' => false,
             'name' => 'light_session',
         );
-        $this->settings = array_merge($defaults, $settings);
-        if (is_string($this->settings['expires'])) {
-            $this->settings['expires'] = strtotime($this->settings['expires']);
+        $this->configs = array_merge($defaults, $configs);
+        if (is_string($this->configs['expires'])) {
+            $this->configs['expires'] = strtotime($this->configs['expires']);
         }
 
         /**
@@ -67,13 +67,13 @@ class SessionCookie extends \Light\Middleware
             session_start();
         }
 
-        $value = $this->app->getCookie($this->settings['name']);
+        $value = $this->application->getCookie($this->configs['name']);
 
         if ($value) {
             try {
                 $_SESSION = unserialize($value);
             } catch (\Exception $e) {
-                $this->app->getLog()->error('Error unserializing session cookie value! ' . $e->getMessage());
+                $this->application->getLog()->error('Error unserializing session cookie value! ' . $e->getMessage());
             }
         } else {
             $_SESSION = array();
@@ -88,16 +88,16 @@ class SessionCookie extends \Light\Middleware
         $value = serialize($_SESSION);
 
         if (strlen($value) > 4096) {
-            $this->app->getLog()->error('WARNING! Light\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
+            $this->application->getLog()->error('WARNING! Light\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
-            $this->app->setCookie(
-                $this->settings['name'],
+            $this->application->setCookie(
+                $this->configs['name'],
                 $value,
-                $this->settings['expires'],
-                $this->settings['path'],
-                $this->settings['domain'],
-                $this->settings['secure'],
-                $this->settings['httponly']
+                $this->configs['expires'],
+                $this->configs['path'],
+                $this->configs['domain'],
+                $this->configs['secure'],
+                $this->configs['httponly']
             );
         }
         // session_destroy();
