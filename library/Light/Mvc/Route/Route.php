@@ -59,7 +59,8 @@ class Route
     protected $caseSensitive;
 
     /**
-     * Constructor
+     * Constructor, initialize a route
+     *
      * @param string $pattern The URL pattern (e.g. "/books/:id")
      * @param mixed $callable Anything that returns TRUE for is_callable()
      * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
@@ -74,7 +75,8 @@ class Route
 
     /**
      * Set default route conditions for all instances
-     * @param  array $defaultConditions
+     *
+     * @param array $defaultConditions
      */
     public static function setDefaultConditions(array $defaultConditions)
     {
@@ -83,6 +85,7 @@ class Route
 
     /**
      * Get default route conditions for all instances
+     * 
      * @return array
      */
     public static function getDefaultConditions()
@@ -92,6 +95,7 @@ class Route
 
     /**
      * Get route pattern
+     *
      * @return string
      */
     public function getPattern()
@@ -101,7 +105,8 @@ class Route
 
     /**
      * Set route pattern
-     * @param  string $pattern
+     *
+     * @param string $pattern
      */
     public function setPattern($pattern)
     {
@@ -110,6 +115,7 @@ class Route
 
     /**
      * Get route callable
+     *
      * @return mixed
      */
     public function getCallable()
@@ -119,7 +125,8 @@ class Route
 
     /**
      * Set route callable
-     * @param  mixed $callable
+     *
+     * @param mixed $callable
      * @throws \InvalidArgumentException If argument is not callable
      */
     public function setCallable($callable)
@@ -155,7 +162,7 @@ class Route
 
     /**
      * Set route conditions
-     * @param  array $conditions
+     * @param array $conditions
      */
     public function setConditions(array $conditions)
     {
@@ -173,7 +180,7 @@ class Route
 
     /**
      * Set route name
-     * @param  string $name
+     * @param string $name
      */
     public function setName($name)
     {
@@ -191,7 +198,7 @@ class Route
 
     /**
      * Set route parameters
-     * @param  array $params
+     * @param array $params
      */
     public function setParams($params)
     {
@@ -200,7 +207,7 @@ class Route
 
     /**
      * Get route parameter value
-     * @param  string $index Name of URL parameter
+     * @param string $index Name of URL parameter
      * @return string
      * @throws \InvalidArgumentException If route parameter does not exist at index
      */
@@ -215,8 +222,8 @@ class Route
 
     /**
      * Set route parameter value
-     * @param  string $index Name of URL parameter
-     * @param  mixed $value The new parameter value
+     * @param string $index Name of URL parameter
+     * @param mixed $value The new parameter value
      * @throws \InvalidArgumentException If route parameter does not exist at index
      */
     public function setParam($index, $value)
@@ -268,7 +275,7 @@ class Route
 
     /**
      * Detect support for an HTTP method
-     * @param  string $method
+     * @param string $method
      * @return bool
      */
     public function supportsHttpMethod($method)
@@ -295,7 +302,7 @@ class Route
      * with `$this->middleware`.  Each middleware is checked for is_callable()
      * and an InvalidArgumentException is thrown immediately if it isn't.
      *
-     * @param  Callable|array[Callable]
+     * @param Callable|array[Callable]
      * @return \Light\Route
      * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
      */
@@ -325,7 +332,7 @@ class Route
      *
      * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
      *
-     * @param  string $resourceUri A Request URI
+     * @param string $resourceUri A Request URI
      * @return bool
      */
     public function matches($resourceUri)
@@ -365,7 +372,7 @@ class Route
 
     /**
      * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param  array $m URL parameters
+     * @param array $m URL parameters
      * @return string       Regular expression for URL parameter
      */
     protected function matchesCallback($m)
@@ -385,7 +392,7 @@ class Route
 
     /**
      * Set route name
-     * @param  string $name The name of the route
+     * @param string $name The name of the route
      * @return \Light\Route
      */
     public function name($name)
@@ -397,7 +404,7 @@ class Route
 
     /**
      * Merge route conditions
-     * @param  array $conditions Key-value array of URL parameter conditions
+     * @param array $conditions Key-value array of URL parameter conditions
      * @return \Light\Route
      */
     public function conditions(array $conditions)

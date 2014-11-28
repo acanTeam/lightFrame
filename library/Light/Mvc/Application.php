@@ -90,7 +90,7 @@ class Application
         // Default view
         $this->container->singleton('view', function ($c) {
             $viewClass = $c['configs']['view'];
-            $templatePaths = $c['configs']['template.paths'];
+            $templatePaths = $c['configs']['templates.path'];
 
             $view = ($viewClass instanceOf \Light\View\View) ? $viewClass : new $viewClass;
             $view->setTemplatePaths($templatePaths);
@@ -207,7 +207,7 @@ class Application
             'logger.level' => \Light\Logger\Logger::DEBUG,
             'logger.enabled' => true,
             // View
-            'template.paths' => array('./views'),
+            'templates.path' => array('./views'),
             'view' => '\Light\View\View',
             // Cookies
             'cookies.encrypt' => false,

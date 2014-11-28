@@ -303,4 +303,66 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $result = isset(self::$messages[$status]) ? self::$messages[$status] : null;
         return $result;
     }
+
+
+    public function status($status = null)
+    {
+        if (!is_null($status)) {
+            $this->status = (int) $status;
+        }
+
+        return $this->status;
+    }
+
+    public function header($name, $value = null)
+    {
+        if (!is_null($value)) {
+            $this->headers->set($name, $value);
+        }
+
+        return $this->headers->get($name);
+    }
+
+    public function headers()
+    {
+        return $this->headers;
+    }
+
+    public function body($body = null)
+    {
+        if (!is_null($body)) {
+            $this->write($body, true);
+        }
+
+        return $this->body;
+    }
+
+    public function length($length = null)
+    {
+        if (!is_null($length)) {
+            $this->length = (int) $length;
+        }
+
+        return $this->length;
+    }
+
+    public function setCookie($name, $value)
+    {
+        $this->cookies->set($name, $value);
+    }
+
+    public function deleteCookie($name, $settings = array())
+    {
+        $this->cookies->remove($name, $settings);
+    }
+
+    public function count()
+    {
+        return count($this->headers);
+    }
+
+    public function getIterator()
+    {
+        return $this->headers->getIterator();
+    }
 }
