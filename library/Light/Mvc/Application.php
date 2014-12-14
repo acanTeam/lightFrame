@@ -667,6 +667,12 @@ class Application
         $this->view->display($template);
     }
 
+    public function layout($template, $layout, $data = array(), $status = null)
+    {
+        $data['contentLayout'] = $this->view->fetch($template, $data);
+        $this->render($layout, $data, $status);
+    }
+
     /********************************************************************************
     * HTTP Caching
     *******************************************************************************/

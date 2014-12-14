@@ -181,6 +181,7 @@ class View
         $templateFile = '';
         foreach ($this->templatePaths as $templatePath) {
             $templateFile = $templatePath . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
+            $templateFile .= strpos($template, '.') === false ? '.php' : '';
             if (file_exists($templateFile)) {
                 break;
             }
