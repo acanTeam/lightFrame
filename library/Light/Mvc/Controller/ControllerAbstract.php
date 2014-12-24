@@ -19,7 +19,7 @@ class ControllerAbstract
     {
         $this->application = Application::getInstance();
 
-        $this->modulePath = $this->application->container['configs']['modulePath'][$this->currentModel];
+        $this->modulePath = $this->application->container['configs']['modulePath'][$this->currentModule];
 
     }
 

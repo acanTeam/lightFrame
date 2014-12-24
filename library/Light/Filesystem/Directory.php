@@ -4,27 +4,47 @@ namespace Light\Filesystem;
 
 class Directory
 {
-	public static function read($dirname, $recursive = false)
-	{
-		static $allInfo;
-		$dirname .= subStr($dirname, -1) == '/' ? '' : '/';
-		$dirInfo = glob($dirname . '*');
-		if ($recursive == false) {
-			return $dirInfo;
-		} else {
-			foreach ($dirInfo as $info) {
-				if (is_dir($info)) {
-					if (!is_readable($info)) {
-						chmod($info, 0777);
-					}
-					$allInfo[] = $info;
-					self::read($info, true);
-				} else {
-					$allInfo[] = $info;
-				}
-			}
-		}
-		return $allInfo;
+    public static function read($dirname, $recursive = false)
+    {
+        static $allInfo;
+        $dirname .= subStr($dirname, -1) == '/' ? '' : '/';
+        $dirInfo = glob($dirname . '*');
+        if ($recursive == false) {
+            return $dirInfo;
+        } else {
+            foreach ($dirInfo as $info) {
+                if (is_dir($info)) {
+                    if (!is_readable($info)) {
+                        chmod($info, 0777);
+                    }
+                    $allInfo[] = $info;
+                    self::read($info, true);
+                } else {
+                    $allInfo[] = $info;
+                }
+            }
+        }
+        return $allInfo;
+    }
+
+    public static function getTree($directory)
+    {
+        $infos = array();
+        if (!is_dir($directory)) {
+            return $infos;
+        }
+
+        $baseKey = basename($directory);
+        $directory .= substr($directory, -1) == '/' ? '' : '/';
+        $subInfos = glob($directory . '*');
+        foreach ($subInfos as $subInfo) {
+            if (is_dir($subInfo)) {
+                $infos[basename($subInfo)] = self::getTree($subInfo);
+            } else {
+                $infos['_files'][] = $subInfo;
+            }
+        }
+        return $infos;
 	}
 
 	public static function rmdir($dirname)
@@ -48,7 +68,7 @@ class Directory
 		@rmdir($dirname);
 	}
 
-	public function mkdir($dir, $mode = 0777)
+	public static function mkdir($dir, $mode = 0755)
 	{
 		if (!is_dir($dir)) {
 			$ret = @mkdir($dir, $mode, true);
