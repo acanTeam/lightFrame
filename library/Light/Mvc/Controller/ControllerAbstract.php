@@ -18,8 +18,11 @@ class ControllerAbstract
     public function __construct()
     {
         $this->application = Application::getInstance();
+        $this->domain = 'http://frame.91zuiai' . $this->application->configCommon['topDomain'] . '/';
 
         $this->modulePath = $this->application->container['configs']['modulePath'][$this->currentModule];
+        $this->time = time();
+        $this->ip = $this->_getIp();
 
     }
 
@@ -47,9 +50,37 @@ class ControllerAbstract
         $dbHost = $this->application->configCommon['dbHost'];
         $dbUsername = $this->application->configCommon['dbUsername'];
         $dbPassword = $this->application->configCommon['dbPassword'];
-        $link = mysql_connect($dbHost, $dbUsername, $dbPassword); 
-        mysql_query("SET character_set_connection=utf8, character_set_results=utf8, character_set_client=binary", $link);
+        $link = @mysql_connect($dbHost, $dbUsername, $dbPassword); 
+        @mysql_query("SET character_set_connection=utf8, character_set_results=utf8, character_set_client=binary", $link);
 
         return $link;
     }
+
+    /**
+     * Create a random string
+     *
+     * @param  string $length the length of the string
+     * @return string random string
+     */
+    protected function _getRandomStr($length = 6, $chars = '23456789abcdefghijklmnpqrstuvwxyABCDEFGHJKLMNPQRSTUVWXY')
+    {
+        $hash = '';
+        $max = strlen($chars) - 1;
+        for($i = 0; $i < $length; $i++) {
+            $hash .= $chars[mt_rand(0, $max)];
+        }
+        return $hash;
+    }
+
+
+    protected function _getIp()
+    { 
+        if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"), "unknown")) $ip = getenv("HTTP_CLIENT_IP"); 
+        else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown")) $ip = getenv("HTTP_X_FORWARDED_FOR"); 
+        else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown")) $ip = getenv("REMOTE_ADDR"); 
+        else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown")) $ip = $_SERVER['REMOTE_ADDR']; 
+        else $ip = "unknown"; 
+        return ($ip); 
+    } 
+    
 }

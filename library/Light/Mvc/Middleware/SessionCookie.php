@@ -1,7 +1,7 @@
 <?php
-namespace Light\Middleware;
+namespace Light\Mvc\Middleware;
 
-class SessionCookie extends \Light\Middleware
+class SessionCookie extends AbstractMiddleware
 {
     /**
      * @var array
