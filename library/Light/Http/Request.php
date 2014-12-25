@@ -1,6 +1,8 @@
 <?php
 namespace Light\Http;
 
+use \Light\Stdlib\Util as Util;
+
 class Request
 {
     const METHOD_HEAD = 'HEAD';
@@ -43,7 +45,7 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Light\Http\Headers(\Light\Http\Headers::extract($env));
-        $this->cookies = new \Light\Stdlib\Parameters(\Light\Stdlib\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->cookies = new \Light\Stdlib\Parameters(Util::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**

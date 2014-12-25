@@ -18,7 +18,7 @@ class ControllerAbstract
     public function __construct()
     {
         $this->application = Application::getInstance();
-        $this->domain = 'http://frame.91zuiai' . $this->application->configCommon['topDomain'] . '/';
+        $this->application->domain = 'http://frame.91zuiai' . $this->application->configCommon['topDomain'] . '/';
 
         $this->modulePath = $this->application->container['configs']['modulePath'][$this->currentModule];
         $this->time = time();
@@ -83,4 +83,16 @@ class ControllerAbstract
         return ($ip); 
     } 
     
+    protected function _messageInfo($message, $urlForward = '', $sleepTime = 3000)
+    {
+
+        $data = array(
+            'message' => $message,
+            'application' => $this->application,
+            'urlForward' => $urlForward,
+            'sleepTime' => $sleepTime,
+        );
+        $this->application->layout('common/message', 'common/layout', $data);
+        exit();
+    }
 }
