@@ -95,4 +95,17 @@ class ControllerAbstract
         $this->application->layout('common/message', 'common/layout', $data);
         exit();
     }
+
+    protected function _getNavbar()
+    {
+        $navbarInfos = array(
+            'blog' => array('name' => '博客', 'url' => 'http://blog.acanstudio.com/'),
+            'docs' => array('name' => '文档系统', 'url' => $this->application->domain . 'document'),
+            'bootstrap' => array('name' => 'Bootstrap', 'url' => $this->application->domain . 'bootstrap/demo'),
+            'php' => array('name' => 'PHP进阶', 'url' => $this->application->domain . 'codelib/phuml'),
+            'phptool' => array('name' => 'PHP小工具', 'url' => $this->application->domain . 'codelib/tool'),
+            'about' => array('name' => 'About', 'url' => 'http://blog.acanstudio.com/abount'),
+        );
+        return $navbarInfos;
+    }    
 }
