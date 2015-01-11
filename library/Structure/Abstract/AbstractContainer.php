@@ -1,38 +1,18 @@
 <?php
-/**
- * @copyright Copyright (c) 2005 by Bruno R. Preiss, P.Eng.
- *
- * @author $Author: brpreiss $
- * @version $Id: AbstractContainer.php,v 1.14 2005/12/09 01:11:02 brpreiss Exp $
- * @package Opus11
- */
 
-/**
- */
-require_once 'Opus11/AbstractComparable.php';
-require_once 'Opus11/IContainer.php';
+namespace Structure\Abstract;
 
-//{
+use Structure\Interface\ContainerInterface;
+
 /**
  * Abstract base class from which all container classes are derived.
- *
- * @package Opus11
  */
-abstract class AbstractContainer
-    extends AbstractComparable
-    implements IContainer
+abstract class AbstractContainer extends AbstractComparable implements ContainerInterface
 {
     /**
      * @var integer The number of items in this container.
      */
     protected $count;
-
-//}@head
-
-//{
-//!    // ...
-//!}
-//}@tail
 
     /**
      * Constructs an AbstractContainer.
@@ -59,7 +39,6 @@ abstract class AbstractContainer
         $this->count = 0;
     }
 
-//{
     /**
      * Count getter.
      *
@@ -89,7 +68,6 @@ abstract class AbstractContainer
     {
         return false;
     }
-//}>a
 
     /**
      * Returns a value computed by calling the given callback function
@@ -118,22 +96,21 @@ abstract class AbstractContainer
     }
 
     /**
-     * Calls the visit method of the given visitor
-     * for each object in this container.
+     * Calls the visit method of the given visitor for each object 
+     * in this container.
      *
-     * @param object IVisitor $visitor A visitor.
+     * @param object VisitorInterface $visitor A visitor.
      */
-    public function accept(IVisitor $visitor)
+    public function accept(VisitorInterface $visitor)
     {
-        foreach ($this as $obj)
-        {
-            if ($visitor->isDone())
+        foreach ($this as $obj) {
+            if ($visitor->isDone()) {
                 break;
+            }
             $visitor->visit($obj);
         }
     }
 
-//{
     /**
      * Returns a textual representation of this container.
      *
@@ -148,9 +125,7 @@ abstract class AbstractContainer
             ), array('',''));
         return $this->getClass()->getName() .  '{' . $s[0] . '}';
     }
-//}>b
     
-//{
     /**
      * Returns a hash code for this container.
      *
@@ -165,7 +140,6 @@ abstract class AbstractContainer
             ), 0);
         return $s;
     }
-//}>c
 
     /**
      * Main program.
@@ -179,11 +153,8 @@ abstract class AbstractContainer
         $status = 0;
         return $status;
     }
-
 }
 
-if (realpath($argv[0]) == realpath(__FILE__))
-{
+if (realpath($argv[0]) == realpath(__FILE__)) {
     exit(AbstractContainer::main(array_slice($argv, 1)));
 }
-?>

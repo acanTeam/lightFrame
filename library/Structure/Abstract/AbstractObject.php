@@ -1,47 +1,26 @@
 <?php
-/**
- * @copyright Copyright (c) 2005 by Bruno R. Preiss, P.Eng.
- *
- * @author $Author: brpreiss $
- * @version $Id: AbstractObject.php,v 1.10 2005/12/09 01:11:03 brpreiss Exp $
- * @package Opus11
- */
 
-/**
- */
-require_once 'Opus11/IObject.php';
+namespace Structure/Abstract;
 
-//{
+use Straucture\Interface\ObjectInterface;
+
 /**
  * Abstract base class from which all object classes are derived.
- *
- * @package Opus11
  */
-abstract class AbstractObject
-    implements IObject
+abstract class AbstractObject implements ObjectInterface
 {
-//}@head
-
-//{
-//!    // ...
-//!}
-//}@tail
-
     /**
      * Constructs an AbstractObject.
      */
     public function __construct()
-    {
-    }
+    {}
 
     /**
      * Destructor.
      */
     public function __destruct()
-    {
-    }
+    {}
 
-//{
     /**
      * Returns a unique identifier for this object.
      *
@@ -49,13 +28,10 @@ abstract class AbstractObject
      */
     public function getId()
     {
-        preg_match('/^Object id #(\d*)$/',
-            strval($this), $matches);
+        preg_match('/^Object id #(\d*)$/', strval($this), $matches);
         return intval($matches[1]);
     }
-//}>a
 
-//{
     /**
      * Returns the class of this object.
      *
@@ -65,7 +41,6 @@ abstract class AbstractObject
     {
         return new ReflectionClass(get_class($this));
     }
-//}>b
 
     /**
      * Returns a hash code for this object.
@@ -105,4 +80,3 @@ if (realpath($argv[0]) == realpath(__FILE__))
 {
     exit(AbstractObject::main(array_slice($argv, 1)));
 }
-?>
