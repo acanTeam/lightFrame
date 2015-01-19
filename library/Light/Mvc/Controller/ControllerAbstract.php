@@ -18,7 +18,7 @@ class ControllerAbstract
     public function __construct()
     {
         $this->application = Application::getInstance();
-        $this->application->domain = 'http://frame.91zuiai' . $this->application->configCommon['topDomain'] . '/';
+        $this->application->domain = 'http://www.acanstudio' . $this->application->configCommon['topDomain'] . '/';
 
         $this->modulePath = $this->application->container['configs']['modulePath'][$this->currentModule];
         $this->time = time();
@@ -35,7 +35,7 @@ class ControllerAbstract
      */
     protected function _getNavbarContent($navbarInfos, $navbarType = 'common/navbar')
     {
-        $navbarContent = $this->application->view->fetch($navbarType, array('navbarInfos' => $navbarInfos));
+        $navbarContent = $this->application->view->fetch($navbarType, array('navbarInfos' => $navbarInfos, 'application' => $this->application));
 
         return $navbarContent;
     }
@@ -102,9 +102,9 @@ class ControllerAbstract
             'blog' => array('name' => '博客', 'url' => 'http://blog.acanstudio.com/'),
             'docs' => array('name' => '文档系统', 'url' => $this->application->domain . 'document'),
             'bootstrap' => array('name' => 'Bootstrap', 'url' => $this->application->domain . 'bootstrap/demo'),
-            'php' => array('name' => 'PHP进阶', 'url' => $this->application->domain . 'codelib/phuml'),
+            //'php' => array('name' => 'PHP进阶', 'url' => $this->application->domain . 'codelib/phuml'),
             'phptool' => array('name' => 'PHP小工具', 'url' => $this->application->domain . 'codelib/tool'),
-            'about' => array('name' => 'About', 'url' => 'http://blog.acanstudio.com/abount'),
+            'about' => array('name' => 'About', 'url' => 'http://blog.acanstudio.com/about'),
         );
         return $navbarInfos;
     }    
