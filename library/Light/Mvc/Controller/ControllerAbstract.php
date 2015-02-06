@@ -108,4 +108,38 @@ class ControllerAbstract
         );
         return $navbarInfos;
     }    
+
+    protected function getFiles($infos, $parentCode = '')
+    {
+        static $files = array();
+        
+        $parentCodeKey = empty($parentCode) ? 'root' : $parentCode;
+        foreach ($infos as $code => $info) {
+            if ($code == '_files') {
+                $files[$parentCodeKey] = $info;
+            } else {
+                $parentCodeNew = empty($parentCode) ? $code : $parentCode  . '_' . $code;
+                $this->getFiles($info, $parentCodeNew);
+            }
+        }
+        return $files;
+    }
+
+    /**
+     * Get pointing encode of string
+     *
+     * @param string $string
+     * @param string $wantEncode 
+     * @return string
+     */
+    protected function _stringEncode($string, $wantEncode = 'UTF-8')
+    {
+        $encodes = array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5');
+        $encode = mb_detect_encoding($string, $encodes);
+        if ($encode != $wantEncode) {
+            $string = iconv($encode, $wantEncode, $string);
+        }
+
+        return $string;
+    }    
 }
