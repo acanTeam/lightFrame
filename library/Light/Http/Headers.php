@@ -1,4 +1,5 @@
 <?php
+
 namespace Light\Http;
 
 class Headers extends \Light\Stdlib\Parameters

@@ -1,4 +1,5 @@
 <?php
+
 namespace Light\Logger;
 
 class Writer

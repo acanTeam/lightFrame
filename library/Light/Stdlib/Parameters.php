@@ -51,13 +51,16 @@ class Parameters implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        if ($this->has($key)) {
-            $isInvokable = is_object($this->data[$this->normalizeKey($key)]) && method_exists($this->data[$this->normalizeKey($key)], '__invoke');
-
-            return $isInvokable ? $this->data[$this->normalizeKey($key)]($this) : $this->data[$this->normalizeKey($key)];
+        if (!$this->has($key)) {
+            return $default;
         }
 
-        return $default;
+        $isInvokable = is_object($this->data[$this->normalizeKey($key)]) && method_exists($this->data[$this->normalizeKey($key)], '__invoke');
+        if ($isInvokable) {
+            return $this->data[$this->normalizeKey($key)]($this);
+        }
+        
+        return $this->data[$this->normalizeKey($key)];
     }
 
     /**
