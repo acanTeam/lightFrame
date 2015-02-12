@@ -1,5 +1,6 @@
 <?php
-class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
+
+class UtilTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -15,7 +16,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testStripSlashesWithoutMagicQuotes()
     {
         $data = "This should have \"quotes\" in it";
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, false);
+        $stripped = \Light\Stdlib\Util::stripSlashesIfMagicQuotes($data, false);
         $this->assertEquals($data, $stripped);
     }
 
@@ -25,7 +26,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testStripSlashesFromArrayWithoutMagicQuotes()
     {
         $data = array("This should have \"quotes\" in it", "And this \"too\" has quotes");
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, false);
+        $stripped = \Light\Stdlib\Util::stripSlashesIfMagicQuotes($data, false);
         $this->assertEquals($data, $stripped);
     }
 
@@ -35,7 +36,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testStripSlashesWithMagicQuotes()
     {
         $data = "This should have \"quotes\" in it";
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, true);
+        $stripped = \Light\Stdlib\Util::stripSlashesIfMagicQuotes($data, true);
         $this->assertEquals('This should have "quotes" in it', $stripped);
     }
 
@@ -45,7 +46,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testStripSlashesFromArrayWithMagicQuotes()
     {
         $data = array("This should have \"quotes\" in it", "And this \"too\" has quotes");
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, true);
+        $stripped = \Light\Stdlib\Util::stripSlashesIfMagicQuotes($data, true);
         $this->assertEquals($data = array('This should have "quotes" in it', 'And this "too" has quotes'), $stripped);
     }
 
@@ -57,8 +58,8 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $data = 'foo';
         $key = 'secret';
         $iv = md5('initializationVector');
-        $encrypted = \Slim\Http\Util::encrypt($data, $key, $iv);
-        $decrypted = \Slim\Http\Util::decrypt($encrypted, $key, $iv);
+        $encrypted = \Light\Stdlib\Util::encrypt($data, $key, $iv);
+        $decrypted = \Light\Stdlib\Util::decrypt($encrypted, $key, $iv);
         $this->assertEquals($data, $decrypted);
         $this->assertTrue($data !== $encrypted);
     }
@@ -71,7 +72,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $data = '';
         $key = 'secret';
         $iv = md5('initializationVector');
-        $encrypted = \Slim\Http\Util::encrypt($data, $key, $iv);
+        $encrypted = \Light\Stdlib\Util::encrypt($data, $key, $iv);
         $this->assertEquals('', $encrypted);
     }
 
@@ -83,7 +84,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $data = '';
         $key = 'secret';
         $iv = md5('initializationVector');
-        $decrypted = \Slim\Http\Util::decrypt($data, $key, $iv);
+        $decrypted = \Light\Stdlib\Util::decrypt($data, $key, $iv);
         $this->assertEquals('', $decrypted);
     }
 
@@ -95,8 +96,8 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $data = 'foo';
         $key = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
         $iv = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
-        $encrypted = \Slim\Http\Util::encrypt($data, $key, $iv);
-        $decrypted = \Slim\Http\Util::decrypt($encrypted, $key, $iv);
+        $encrypted = \Light\Stdlib\Util::encrypt($data, $key, $iv);
+        $decrypted = \Light\Stdlib\Util::decrypt($encrypted, $key, $iv);
         $this->assertEquals($data, $decrypted);
         $this->assertTrue($data !== $encrypted);
     }
@@ -109,8 +110,8 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $secret = 'password';
         $algorithm = MCRYPT_RIJNDAEL_256;
         $mode = MCRYPT_MODE_CBC;
-        $encodedValue = \Slim\Http\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
-        $decodedValue = \Slim\Http\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
+        $encodedValue = \Light\Stdlib\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
+        $decodedValue = \Light\Stdlib\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
 
         //Test secure cookie value
         $parts = explode('|', $encodedValue);
@@ -133,8 +134,8 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $secret = 'password';
         $algorithm = MCRYPT_RIJNDAEL_256;
         $mode = MCRYPT_MODE_CBC;
-        $encodedValue = \Slim\Http\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
-        $decodedValue = \Slim\Http\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
+        $encodedValue = \Light\Stdlib\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
+        $decodedValue = \Light\Stdlib\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
         $this->assertFalse($decodedValue);
     }
 
@@ -152,11 +153,11 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $secret = 'password';
         $algorithm = MCRYPT_RIJNDAEL_256;
         $mode = MCRYPT_MODE_CBC;
-        $encodedValue = \Slim\Http\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
+        $encodedValue = \Light\Stdlib\Util::encodeSecureCookie($value, $expires, $secret, $algorithm, $mode);
         $encodedValueParts = explode('|', $encodedValue);
         $encodedValueParts[1] = $encodedValueParts[1] . 'changed';
         $encodedValue = implode('|', $encodedValueParts);
-        $decodedValue = \Slim\Http\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
+        $decodedValue = \Light\Stdlib\Util::decodeSecureCookie($encodedValue, $secret, $algorithm, $mode);
         $this->assertFalse($decodedValue);
     }
 
@@ -165,7 +166,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $name = 'foo';
         $value = 'bar';
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, $value);
+        \Light\Stdlib\Util::setCookieHeader($header, $name, $value);
         $this->assertEquals('foo=bar', $header['Set-Cookie']);
     }
 
@@ -174,7 +175,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $name = 'foo';
         $value = 'bar';
         $header = array('Set-Cookie' => 'one=two');
-        \Slim\Http\Util::setCookieHeader($header, $name, $value);
+        \Light\Stdlib\Util::setCookieHeader($header, $name, $value);
         $this->assertEquals("one=two\nfoo=bar", $header['Set-Cookie']);
     }
 
@@ -184,7 +185,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $value = 'bar';
         $domain = 'foo.com';
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain
         ));
@@ -198,7 +199,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $domain = 'foo.com';
         $path = '/foo';
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => $path
@@ -215,7 +216,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $expires = '2 days';
         $expiresFormat = gmdate('D, d-M-Y H:i:s e', strtotime($expires));
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => '/foo',
@@ -233,7 +234,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $expires = strtotime('2 days');
         $expiresFormat = gmdate('D, d-M-Y H:i:s e', $expires);
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => '/foo',
@@ -250,7 +251,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $path = '/foo';
         $expires = 0;
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => '/foo',
@@ -269,7 +270,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $expiresFormat = gmdate('D, d-M-Y H:i:s e', $expires);
         $secure = true;
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => '/foo',
@@ -290,7 +291,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $secure = true;
         $httpOnly = true;
         $header = array();
-        \Slim\Http\Util::setCookieHeader($header, $name, array(
+        \Light\Stdlib\Util::setCookieHeader($header, $name, array(
             'value' => $value,
             'domain' => $domain,
             'path' => '/foo',
@@ -313,7 +314,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     {
         $value = 'bar';
 
-        $headers = new \Slim\Http\Headers();
+        $headers = new \Light\Http\Headers();
 
         $settings = array(
             'cookies.encrypt' => true,
@@ -322,19 +323,19 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
             'cookies.cipher_mode' => MCRYPT_MODE_CBC
         );
 
-        $cookies = new \Slim\Http\Cookies();
+        $cookies = new \Light\Http\Cookies();
         $cookies->set('foo',  array(
             'value' => $value,
             'expires' => '1 hour'
         ));
 
-        \Slim\Http\Util::serializeCookies($headers, $cookies, $settings);
+        \Light\Stdlib\Util::serializeCookies($headers, $cookies, $settings);
 
         $encrypted = $headers->get('Set-Cookie');
         $encrypted = strstr($encrypted, ';', true);
         $encrypted = urldecode(substr(strstr($encrypted, '='), 1));
 
-        $decrypted = \Slim\Http\Util::decodeSecureCookie(
+        $decrypted = \Light\Stdlib\Util::decodeSecureCookie(
             $encrypted,
             $settings['cookies.secret_key'],
             $settings['cookies.cipher'],
@@ -348,21 +349,21 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testDeleteCookieHeaderWithSurvivingCookie()
     {
         $header = array('Set-Cookie' => "foo=bar\none=two");
-        \Slim\Http\Util::deleteCookieHeader($header, 'foo');
+        \Light\Stdlib\Util::deleteCookieHeader($header, 'foo');
         $this->assertEquals(1, preg_match("@^one=two\nfoo=; expires=@", $header['Set-Cookie']));
     }
 
     public function testDeleteCookieHeaderWithoutSurvivingCookie()
     {
         $header = array('Set-Cookie' => "foo=bar");
-        \Slim\Http\Util::deleteCookieHeader($header, 'foo');
+        \Light\Stdlib\Util::deleteCookieHeader($header, 'foo');
         $this->assertEquals(1, preg_match("@foo=; expires=@", $header['Set-Cookie']));
     }
 
     public function testDeleteCookieHeaderWithMatchingDomain()
     {
         $header = array('Set-Cookie' => "foo=bar; domain=foo.com");
-        \Slim\Http\Util::deleteCookieHeader($header, 'foo', array(
+        \Light\Stdlib\Util::deleteCookieHeader($header, 'foo', array(
             'domain' => 'foo.com'
         ));
         $this->assertEquals(1, preg_match("@foo=; domain=foo.com; expires=@", $header['Set-Cookie']));
@@ -371,7 +372,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testDeleteCookieHeaderWithoutMatchingDomain()
     {
         $header = array('Set-Cookie' => "foo=bar; domain=foo.com");
-        \Slim\Http\Util::deleteCookieHeader($header, 'foo', array(
+        \Light\Stdlib\Util::deleteCookieHeader($header, 'foo', array(
             'domain' => 'bar.com'
         ));
         $this->assertEquals(1, preg_match("@foo=bar; domain=foo\.com\nfoo=; domain=bar\.com@", $header['Set-Cookie']));
@@ -383,7 +384,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testParsesCookieHeader()
     {
         $header = 'foo=bar; one=two; colors=blue';
-        $result = \Slim\Http\Util::parseCookieHeader($header);
+        $result = \Light\Stdlib\Util::parseCookieHeader($header);
         $this->assertEquals(3, count($result));
         $this->assertEquals('bar', $result['foo']);
         $this->assertEquals('two', $result['one']);
@@ -396,7 +397,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testParsesCookieHeaderWithEqualSignInValue()
     {
         $header = 'foo=bar; one=two=; colors=blue';
-        $result = \Slim\Http\Util::parseCookieHeader($header);
+        $result = \Light\Stdlib\Util::parseCookieHeader($header);
         $this->assertEquals(3, count($result));
         $this->assertEquals('bar', $result['foo']);
         $this->assertEquals('two=', $result['one']);
@@ -406,7 +407,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testParsesCookieHeaderWithCommaSeparator()
     {
         $header = 'foo=bar, one=two, colors=blue';
-        $result = \Slim\Http\Util::parseCookieHeader($header);
+        $result = \Light\Stdlib\Util::parseCookieHeader($header);
         $this->assertEquals(3, count($result));
         $this->assertEquals('bar', $result['foo']);
         $this->assertEquals('two', $result['one']);
@@ -416,7 +417,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
     public function testPrefersLeftmostCookieWhenManyCookiesWithSameName()
     {
         $header = 'foo=bar; foo=beer';
-        $result = \Slim\Http\Util::parseCookieHeader($header);
+        $result = \Light\Stdlib\Util::parseCookieHeader($header);
         $this->assertEquals('bar', $result['foo']);
     }
 }

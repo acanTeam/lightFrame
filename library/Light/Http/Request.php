@@ -1,7 +1,10 @@
 <?php
 namespace Light\Http;
 
-use \Light\Stdlib\Util as Util;
+use Light\Stdlib\Parameters;
+use Light\Stdlib\Util;
+use Light\Mvc\Environment;
+use Light\Http\Headers;
 
 class Request
 {
@@ -21,31 +24,31 @@ class Request
 
     /**
      * Application Environment
-     * @var \Light\Mvc\Environment
+     * @var Environment
      */
     protected $env;
 
     /**
      * HTTP Headers
-     * @var \Light\Http\Headers
+     * @var Headers
      */
     public $headers;
 
     /**
      * HTTP Cookies
-     * @var \Light\Stdlib\Parameters
+     * @var Parameters
      */
     public $cookies;
 
     /**
      * Constructor
-     * @param \Light\Mvc\Environment $env
+     * @param Environment $env
      */
-    public function __construct(\Light\Mvc\Environment $env)
+    public function __construct(Environment $env)
     {
         $this->env = $env;
-        $this->headers = new \Light\Http\Headers(\Light\Http\Headers::extract($env));
-        $this->cookies = new \Light\Stdlib\Parameters(Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->headers = new Headers(Headers::extract($env));
+        $this->cookies = new Parameters(Util::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**
@@ -128,11 +131,11 @@ class Request
     {
         if ($this->params('isajax')) {
             return true;
-        } elseif (isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-            return true;
-        } else {
-            return false;
         }
+        if (isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -287,19 +290,6 @@ class Request
         }
 
         return $this->cookies;
-        // if (!isset($this->env['light.request.cookie_hash'])) {
-        //     $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-        //     $this->env['light.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
-        // }
-        // if ($key) {
-        //     if (isset($this->env['light.request.cookie_hash'][$key])) {
-        //         return $this->env['light.request.cookie_hash'][$key];
-        //     } else {
-        //         return null;
-        //     }
-        // } else {
-        //     return $this->env['light.request.cookie_hash'];
-        // }
     }
 
     /**

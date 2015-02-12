@@ -4,14 +4,10 @@ namespace Light\Http;
 
 class Headers extends \Light\Stdlib\Parameters
 {
-    /********************************************************************************
-    * Static interface
-    *******************************************************************************/
-
     /**
-     * Special-case HTTP headers that are otherwise unidentifiable as HTTP headers.
-     * Typically, HTTP headers in the $_SERVER array will be prefixed with
-     * `HTTP_` or `X_`. These are not so we list them here for later reference.
+     * Special-case HTTP headers that are otherwise unidentifiable as HTTP headers. Typically, 
+     * HTTP headers in the $_SERVER array will be prefixed with `HTTP_` or `X_`. These are 
+     * not so we list them here for later reference.
      *
      * @var array
      */
@@ -26,6 +22,7 @@ class Headers extends \Light\Stdlib\Parameters
 
     /**
      * Extract HTTP headers from an array of data (e.g. $_SERVER)
+     *
      * @param  array $data
      * @return array
      */
@@ -45,12 +42,9 @@ class Headers extends \Light\Stdlib\Parameters
         return $results;
     }
 
-    /********************************************************************************
-    * Instance interface
-    *******************************************************************************/
-
     /**
      * Transform header name into canonical form
+     *
      * @param  string $key
      * @return string
      */

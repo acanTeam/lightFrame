@@ -163,7 +163,7 @@ class ParametersTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $this->bag->foo);
     }
 
-    public function testPropertyOverloadParameters()
+    public function testPropertyOverloadSet()
     {
         $this->bag->foo = 'bar';
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));

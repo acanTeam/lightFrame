@@ -54,8 +54,6 @@ class CookiesTest extends PHPUnit_Framework_TestCase
 
     public function testRemove()
     {
-        print_r($_COOKIE);
-        return;
         $this->cookie->remove('foo');
         $prop = new \ReflectionProperty($this->cookie, 'data');
         $prop->setAccessible(true);

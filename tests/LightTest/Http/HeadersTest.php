@@ -11,11 +11,12 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     
     public function testNormalizesKey()
     {
-        $h = new \Light\Http\Headers();
-        $h->set('Http_Content_Type', 'text/html');
-        $prop = new \ReflectionProperty($h, 'data');
+        $header = new \Light\Http\Headers();
+        $header->set('Http_Content_Type', 'text/html');
+
+        $prop = new \ReflectionProperty($header, 'data');
         $prop->setAccessible(true);
-        $this->assertArrayHasKey('Content-Type', $prop->getValue($h));
+        $this->assertArrayHasKey('Content-Type', $prop->getValue($header));
     }
 
     public function testExtractHeaders()
