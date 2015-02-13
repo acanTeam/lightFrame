@@ -1,34 +1,8 @@
 <?php
-/**
- * Slim - a micro PHP 5 framework
- *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.4.2
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+
+use Light\Mvc\Environment;
+use Light\Mvc\Application;
+use Light\Mvc\Middleware\SessionCookie;
 
 class SessionCookieTest extends PHPUnit_Framework_TestCase
 {
@@ -47,22 +21,22 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      */
     public function testSessionCookieIsCreated()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new Application();
         $app->get('/foo', function () {
             $_SESSION['foo'] = 'bar';
             echo "Success";
         });
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
         list($status, $header, $body) = $app->response()->finalize();
-        $this->assertTrue($app->response->cookies->has('slim_session'));
-        $cookie = $app->response->cookies->get('slim_session');
+        $this->assertTrue($app->response->cookies->has('light_session'));
+        $cookie = $app->response->cookies->get('light_session');
         $this->assertEquals(serialize(array('foo' => 'bar')), $cookie['value']);
     }
 
@@ -75,19 +49,19 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      */
     public function testSessionIsPopulatedFromEncryptedCookie()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
-            'HTTP_COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
+            'HTTP_COOKIE' => 'light_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         ));
-        $app = new \Slim\Slim();
+        $app = new Application();
         // The cookie value in the test is encrypted, so cookies.encrypt must
         // be set to true
         $app->config('cookies.encrypt', true);
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -102,19 +76,19 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      */
     public function testSessionIsPopulatedFromUnencryptedCookie()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
-            'HTTP_COOKIE' => 'slim_session=a%3A1%3A%7Bs%3A3%3A%22foo%22%3Bs%3A3%3A%22bar%22%3B%7D',
+            'HTTP_COOKIE' => 'light_session=a%3A1%3A%7Bs%3A3%3A%22foo%22%3Bs%3A3%3A%22bar%22%3B%7D',
         ));
-        $app = new \Slim\Slim();
+        $app = new Application();
         // The cookie value in the test is unencrypted, so cookies.encrypt must
         // be set to false
         $app->config('cookies.encrypt', false);
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -123,13 +97,13 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
 
     public function testUnserializeErrorsAreCaughtAndLogged()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
-            'HTTP_COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
+            'HTTP_COOKIE' => 'light_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         ));
 
-        $logWriter = $this->getMockBuilder('Slim\LogWriter')
+        $logWriter = $this->getMockBuilder('Light\Logger\Writer')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -137,15 +111,15 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
             ->method('write');
         $oldLevel = error_reporting(E_ALL);
 
-        $app = new \Slim\Slim(array(
-            'log.writer' => $logWriter
+        $app = new Application(array(
+            'logger.writer' => $logWriter
         ));
         // Unserializing an encrypted value fails if cookie not decrpyted
         $app->config('cookies.encrypt', false);
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -159,15 +133,15 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      */
     public function testSessionIsPopulatedAsEmptyIfNoCookie()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new Application();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -176,21 +150,21 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
 
     public function testSerializingTooLongValueWritesLogAndDoesntCreateCookie()
     {
-        \Slim\Environment::mock(array(
+        Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
 
-        $logWriter = $this->getMockBuilder('Slim\LogWriter')
+        $logWriter = $this->getMockBuilder('Light\Logger\Writer')
             ->disableOriginalConstructor()
             ->getMock();
 
         $logWriter->expects($this->once())
             ->method('write')
-            ->with('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.', \Slim\Log::ERROR);
+            ->with('WARNING! Light\Middleware\SessionCookie data size is larger than 4KB. Content save failed.', \Light\Logger\Logger::ERROR);
 
-        $app = new \Slim\Slim(array(
-            'log.writer' => $logWriter
+        $app = new Application(array(
+            'logger.writer' => $logWriter
         ));
 
         $tooLongValue = $this->getTooLongValue();
@@ -200,12 +174,12 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
             echo "Success";
         });
 
-        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw = new SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
         list($status, $header, $body) = $app->response()->finalize();
-        $this->assertFalse($app->response->cookies->has('slim_session'));
+        $this->assertFalse($app->response->cookies->has('light_session'));
     }
 
     /**

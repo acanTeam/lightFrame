@@ -1,4 +1,5 @@
 <?php
+
 namespace Light\Http;
 
 class Response implements \ArrayAccess, \Countable, \IteratorAggregate
@@ -9,12 +10,12 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     protected $status;
 
     /**
-     * @var \Light\Http\Headers
+     * @var Headers
      */
     public $headers;
 
     /**
-     * @var \Light\Http\Cookies
+     * @var Cookies
      */
     public $cookies;
 
@@ -87,14 +88,14 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      * Constructor, initialize the reponse
      * @param string $body The HTTP response body
      * @param int $status The HTTP response status
-     * @param \Light\Http\Headers | array $headers The HTTP response headers
+     * @param Headers | array $headers The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $headers = array())
     {
         $this->setStatus($status);
-        $this->headers = new \Light\Http\Headers(array('Content-Type' => 'text/html'));
+        $this->headers = new Headers(array('Content-Type' => 'text/html'));
         $this->headers->replace($headers);
-        $this->cookies = new \Light\Http\Cookies();
+        $this->cookies = new Cookies();
         $this->write($body);
     }
 
@@ -302,16 +303,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     {
         $result = isset(self::$messages[$status]) ? self::$messages[$status] : null;
         return $result;
-    }
-
-
-    public function status($status = null)
-    {
-        if (!is_null($status)) {
-            $this->status = (int) $status;
-        }
-
-        return $this->status;
     }
 
     public function header($name, $value = null)

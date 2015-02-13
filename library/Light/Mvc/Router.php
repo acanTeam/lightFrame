@@ -1,6 +1,8 @@
 <?php
 namespace Light\Mvc;
 
+use Light\Mvc\Route\Route;
+
 class Router
 {
     /**
@@ -39,7 +41,7 @@ class Router
 
     /**
      * Get Current Route object or the first matched one if matching has been performed
-     * @return \Light\Route|null
+     * @return Route|null
      */
     public function getCurrentRoute()
     {
@@ -59,7 +61,7 @@ class Router
      * @param  string               $httpMethod   The HTTP method to match against
      * @param  string               $resourceUri  The resource URI to match against
      * @param  bool                 $reload       Should matching routes be re-parsed?
-     * @return array[\Light\Route]
+     * @return array[Route]
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
@@ -81,7 +83,7 @@ class Router
 
     /**
      * Add a route object to the router
-     * @param  \Light\Route     $route      The Light Route
+     * @param  Route     $route      The Light Route
      */
     public function map(\Light\Mvc\Route\Route $route)
     {
@@ -159,10 +161,10 @@ class Router
     /**
      * Add named route
      * @param  string            $name   The route name
-     * @param  \Light\Route       $route  The route object
+     * @param  Route       $route  The route object
      * @throws \RuntimeException         If a named route already exists with the same name
      */
-    public function addNamedRoute($name, \Light\Route $route)
+    public function addNamedRoute($name, Route $route)
     {
         if ($this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route already exists with name: ' . $name);
@@ -185,7 +187,7 @@ class Router
     /**
      * Get named route
      * @param  string           $name
-     * @return \Light\Route|null
+     * @return Route|null
      */
     public function getNamedRoute($name)
     {

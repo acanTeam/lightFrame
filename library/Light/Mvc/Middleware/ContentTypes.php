@@ -1,7 +1,7 @@
 <?php
-namespace Light\Middleware;
+namespace Light\Mvc\Middleware;
 
-class ContentTypes extends \Light\Middleware
+class ContentTypes extends AbstractMiddleware
 {
     /**
      * @var array

@@ -309,7 +309,7 @@ class Request
      * This method returns a key-value array of headers sent in the HTTP request, or
      * the value of a hash key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param  string $key
+
      * @param  mixed  $default The default value returned if the requested header is not available
      * @return mixed
      */
@@ -320,25 +320,6 @@ class Request
         }
 
         return $this->headers;
-        // if ($key) {
-        //     $key = strtoupper($key);
-        //     $key = str_replace('-', '_', $key);
-        //     $key = preg_replace('@^HTTP_@', '', $key);
-        //     if (isset($this->env[$key])) {
-        //         return $this->env[$key];
-        //     } else {
-        //         return $default;
-        //     }
-        // } else {
-        //     $headers = array();
-        //     foreach ($this->env as $key => $value) {
-        //         if (strpos($key, 'light.') !== 0) {
-        //             $headers[$key] = $value;
-        //         }
-        //     }
-        //
-        //     return $headers;
-        // }
     }
 
     /**
@@ -401,12 +382,14 @@ class Request
      */
     public function getContentCharset()
     {
+        $result = null;
         $mediaTypeParams = $this->getMediaTypeParams();
+
         if (isset($mediaTypeParams['charset'])) {
-            return $mediaTypeParams['charset'];
+            $result = $mediaTypeParams['charset'];
         }
 
-        return null;
+        return $result;
     }
 
     /**
@@ -546,15 +529,6 @@ class Request
     public function getReferrer()
     {
         return $this->headers->get('HTTP_REFERER');
-    }
-
-    /**
-     * Get Referer (for those who can't spell)
-     * @return string|null
-     */
-    public function getReferer()
-    {
-        return $this->getReferrer();
     }
 
     /**

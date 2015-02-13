@@ -1,10 +1,12 @@
 <?php
 namespace Light\Mvc\Middleware;
 
+use Light\Mvc\Application;
+
 abstract class AbstractMiddleware
 {
     /**
-     * @var \Light\Mvc\Application Reference to the primary application instance
+     * @var Application Reference to the primary application instance
      */
     protected $application;
 
@@ -16,7 +18,7 @@ abstract class AbstractMiddleware
     /**
      * Set application
      *
-     * @param  \Light\Mvc\Application $application
+     * @param  Application $application
      */
     final public function setApplication($application)
     {
@@ -26,7 +28,7 @@ abstract class AbstractMiddleware
     /**
      * Get application
      *
-     * @return \Light\Mvc\Application
+     * @return Application
      */
     final public function getApplication()
     {
@@ -36,7 +38,7 @@ abstract class AbstractMiddleware
     /**
      * Set next middleware
      *
-     * @return \Light\Mvc\Application | \Light\Mvc\Middleware\AbstractMiddleware
+     * @return Application | AbstractMiddleware
      */
     final public function setNextMiddleware($nextMiddleware)
     {
@@ -46,7 +48,7 @@ abstract class AbstractMiddleware
     /**
      * Get next middleware
      *
-     * @return \Light\Mvc\Application | \Light\Mvc\Middleware\AbstractMiddleware
+     * @return Application | AbstractMiddleware
      */
     final public function getNextMiddleware()
     {

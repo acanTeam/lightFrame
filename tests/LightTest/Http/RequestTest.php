@@ -873,11 +873,11 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function dataTestIp()
     {
         return array(
-                array(array('REMOTE_ADDR' => '127.0.0.1'), '127.0.0.1'),
-                array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2'), '127.0.0.2'),
-                array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'X_FORWARDED_FOR' => '127.0.0.3'), '127.0.0.3'),
-                array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'HTTP_X_FORWARDED_FOR' => '127.0.0.4'), '127.0.0.4'),
-                array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'X_FORWARDED_FOR' => '127.0.0.3', 'HTTP_X_FORWARDED_FOR' => '127.0.0.4'), '127.0.0.3'),
+            array(array('REMOTE_ADDR' => '127.0.0.1'), '127.0.0.1'),
+            array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2'), '127.0.0.2'),
+            array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'X_FORWARDED_FOR' => '127.0.0.3'), '127.0.0.3'),
+            array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'HTTP_X_FORWARDED_FOR' => '127.0.0.4'), '127.0.0.4'),
+            array(array('REMOTE_ADDR' => '127.0.0.1', 'CLIENT_IP' => '127.0.0.2', 'X_FORWARDED_FOR' => '127.0.0.3', 'HTTP_X_FORWARDED_FOR' => '127.0.0.4'), '127.0.0.3'),
         );
     }
 
@@ -891,7 +891,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new Request($env);
         $this->assertEquals('http://foo.com', $req->getReferrer());
-        $this->assertEquals('http://foo.com', $req->getReferer());
     }
 
     /**
@@ -902,7 +901,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = Environment::mock();
         $req = new Request($env);
         $this->assertNull($req->getReferrer());
-        $this->assertNull($req->getReferer());
     }
 
     /**

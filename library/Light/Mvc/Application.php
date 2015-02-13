@@ -543,7 +543,7 @@ class Application
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->status(500);
+            $this->response->setStatus(500);
             $this->response->body('');
             $this->response->write($this->callErrorHandler($argument));
             $this->stop();
@@ -636,7 +636,7 @@ class Application
                 $this->view = new $viewClass();
             }
             $this->view->appendData($existingData);
-            $this->view->setTemplatesDirectory($this->config('templates.path'));
+            $this->view->setTemplatePaths(array($this->config('templates.path')));
         }
 
         return $this->view;
@@ -661,7 +661,7 @@ class Application
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->status($status);
+            $this->response->setStatus($status);
         }
         $this->view->appendData($data);
         $this->view->display($template);
@@ -811,7 +811,7 @@ class Application
 
         // Decode if encrypted
         if ($this->config('cookies.encrypt')) {
-            $value = \Light\Http\Util::decodeSecureCookie(
+            $value = \Light\Stdlib\Util::decodeSecureCookie(
                 $value,
                 $this->config('cookies.secret_key'),
                 $this->config('cookies.cipher'),
@@ -944,7 +944,7 @@ class Application
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
+        $this->response->setStatus($status);
         $this->response->body($message);
         $this->stop();
     }
@@ -961,7 +961,7 @@ class Application
     public function pass()
     {
         $this->cleanBuffer();
-        throw new \Light\Exception\Pass();
+        throw new \Light\Exception\PassException();
     }
 
     /**
@@ -1220,7 +1220,7 @@ class Application
     {
         try {
             if (isset($this->environment['light.flash'])) {
-                $this->view()->setDatas('flash', $this->environment['light.flash']);
+                $this->view()->setData('flash', $this->environment['light.flash']);
             }
             $this->applyHook('light.before');
             ob_start();

@@ -73,7 +73,7 @@ class SessionCookie extends AbstractMiddleware
             try {
                 $_SESSION = unserialize($value);
             } catch (\Exception $e) {
-                $this->application->getLog()->error('Error unserializing session cookie value! ' . $e->getMessage());
+                $this->application->getLogger()->error('Error unserializing session cookie value! ' . $e->getMessage());
             }
         } else {
             $_SESSION = array();
@@ -88,7 +88,7 @@ class SessionCookie extends AbstractMiddleware
         $value = serialize($_SESSION);
 
         if (strlen($value) > 4096) {
-            $this->application->getLog()->error('WARNING! Light\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
+            $this->application->getLogger()->error('WARNING! Light\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
             $this->application->setCookie(
                 $this->configs['name'],

@@ -1,4 +1,5 @@
 <?php
+
 namespace Light\Mvc\Middleware;
 
 class Flash extends AbstractMiddleware implements \ArrayAccess, \IteratorAggregate, \Countable

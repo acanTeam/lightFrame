@@ -30,7 +30,7 @@ class PrettyExceptions extends AbstractMiddleware
             $env['light.logger'] = $logger;
             $env['light.logger']->error($e);
             $this->application->contentType('text/html');
-            $this->application->response()->status(500);
+            $this->application->response()->setStatus(500);
             $this->application->response()->body($this->renderBody($env, $e));
         }
     }
