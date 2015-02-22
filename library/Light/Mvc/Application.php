@@ -636,7 +636,7 @@ class Application
                 $this->view = new $viewClass();
             }
             $this->view->appendData($existingData);
-            $this->view->setTemplatePaths(array($this->config('templates.path')));
+            $this->view->setTemplatePaths($this->config('templates.path'));
         }
 
         return $this->view;
