@@ -600,7 +600,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testViewGetsTemplatesPath()
     {
-        $path = array(dirname(__FILE__) . '/View/templates');
+        $path = array(dirname(__DIR__) . '/View/templates');
         $s = new Application(array('templates.path' => $path));
         $this->assertEquals($s->view->getTemplatePaths(), $path);
     }
@@ -610,7 +610,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithData()
     {
-        $path = array(dirname(__FILE__) . '/View/templates');
+        $path = array(dirname(__DIR__) . '/View/templates');
         $s = new Application(array('templates.path' => $path));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'));
@@ -626,7 +626,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithDataAndStatus()
     {
-        $path = array(dirname(__FILE__) . '/View/templates');
+        $path = array(dirname(__DIR__) . '/View/templates');
         $s = new Application(array('templates.path' => $path));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'), 500);
@@ -1208,14 +1208,14 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testAddMiddleware()
     {
-        //$this->expectOutputString('FooHello');
+        $this->expectOutputString('FooHello');
         $s = new Application();
         $s->add(new CustomMiddleware()); //<-- See top of this file for class definition
         $s->get('/bar', function () {
             echo 'Foo';
         });
         $s->run();
-        //$this->assertEquals('Hello', $s->response()->header('X-Light-Test'));
+        $this->assertEquals('Hello', $s->response()->header('X-Light-Test'));
     }
 
     /**
@@ -1393,7 +1393,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     {
         $s1 = new Application(array(
             'debug' => false,
-            'log.enabled' => false
+            'logger.enabled' => false
         ));
         $s2 = new Application();
         $s1->get('/bar', function () use ($s1) {
@@ -1473,7 +1473,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerIfNotCallable() {
         $this->setExpectedException('\Light\Exception\StopException');
-        $s = new Application(array("log.enabled" => false));
+        $s = new Application(array("logger.enabled" => false));
         $errCallback = 'foo';
         $s->error($errCallback);
     }

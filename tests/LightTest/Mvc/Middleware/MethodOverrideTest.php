@@ -33,7 +33,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             'CONTENT_LENGTH' => 11,
-            'slim.input' => '_METHOD=PUT'
+            'light.input' => '_METHOD=PUT'
         ));
         $app = new CustomAppMethod();
         $mw = new MethodOverride();
@@ -42,8 +42,8 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         $mw->call();
         $env =& $app->environment();
         $this->assertEquals('PUT', $env['REQUEST_METHOD']);
-        $this->assertTrue(isset($env['slim.method_override.original_method']));
-        $this->assertEquals('POST', $env['slim.method_override.original_method']);
+        $this->assertTrue(isset($env['light.method_override.original_method']));
+        $this->assertEquals('POST', $env['light.method_override.original_method']);
     }
 
     /**
@@ -53,7 +53,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
     {
         Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
-            'slim.input' => ''
+            'light.input' => ''
         ));
         $app = new CustomAppMethod();
         $mw = new MethodOverride();
@@ -62,7 +62,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         $mw->call();
         $env =& $app->environment();
         $this->assertEquals('GET', $env['REQUEST_METHOD']);
-        $this->assertFalse(isset($env['slim.method_override.original_method']));
+        $this->assertFalse(isset($env['light.method_override.original_method']));
     }
 
     /**
@@ -76,11 +76,11 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'QUERY_STRING' => 'foo=bar',
-            'SERVER_NAME' => 'slim',
+            'SERVER_NAME' => 'light',
             'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
+            'light.url_scheme' => 'http',
+            'light.input' => '',
+            'light.errors' => fopen('php://stderr', 'w')
         ));
         $app = new CustomAppMethod();
         $mw = new MethodOverride();
@@ -89,7 +89,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         $mw->call();
         $env =& $app->environment();
         $this->assertEquals('POST', $env['REQUEST_METHOD']);
-        $this->assertFalse(isset($env['slim.method_override.original_method']));
+        $this->assertFalse(isset($env['light.method_override.original_method']));
     }
 
     /**
@@ -101,7 +101,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json',
             'CONTENT_LENGTH' => 0,
-            'slim.input' => '',
+            'light.input' => '',
             'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE'
         ));
         $app = new CustomAppMethod();
@@ -111,7 +111,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         $mw->call();
         $env =& $app->environment();
         $this->assertEquals('DELETE', $env['REQUEST_METHOD']);
-        $this->assertTrue(isset($env['slim.method_override.original_method']));
-        $this->assertEquals('POST', $env['slim.method_override.original_method']);
+        $this->assertTrue(isset($env['light.method_override.original_method']));
+        $this->assertEquals('POST', $env['light.method_override.original_method']);
     }
 }
