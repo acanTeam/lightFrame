@@ -87,15 +87,16 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testDefaultInstanceProperties()
     {
-        $s = new Application();
-        $this->assertInstanceOf('\Light\Http\Request', $s->request());
-        $this->assertInstanceOf('\Light\Http\Response', $s->response());
-        $this->assertInstanceOf('\Light\Mvc\Router', $s->router());
-        $this->assertInstanceOf('\Light\View\View', $s->view());
-        $this->assertInstanceOf('\Light\Logger\logger', $s->getLogger());
-        $this->assertEquals(\Light\Logger\Logger::DEBUG, $s->getLogger()->getLevel());
-        $this->assertTrue($s->getLogger()->getEnabled());
-        $this->assertInstanceOf('\Light\Mvc\Environment', $s->environment());
+        $application = new Application();
+
+        $this->assertInstanceOf('\Light\Http\Request', $application->request());
+        $this->assertInstanceOf('\Light\Http\Response', $application->response());
+        $this->assertInstanceOf('\Light\Mvc\Router', $application->router());
+        $this->assertInstanceOf('\Light\View\View', $application->view());
+        $this->assertInstanceOf('\Light\Logger\logger', $application->getLogger());
+        $this->assertEquals(\Light\Logger\Logger::DEBUG, $application->getLogger()->getLevel());
+        $this->assertTrue($application->getLogger()->getEnabled());
+        $this->assertInstanceOf('\Light\Mvc\Environment', $application->environment());
     }
 
     /**
@@ -119,24 +120,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $s->setName('foo');
         $this->assertSame($s, Application::getInstance('foo'));
     }
-
-    /**
-     * Test Light autoloader ignores non-Light classes
-     *
-     * Pre-conditions:
-     * Instantiate a non-light class;
-     *
-     * Post-conditions:
-     * Light autoloader returns without requiring a class file;
-     */
-    public function testLightAutoloaderIgnoresNonLightClass()
-    {
-        //$foo = new Foo();
-    }
-
-    /************************************************
-     * SETTINGS
-     ************************************************/
 
     /**
      * Test get setting that exists
@@ -227,10 +210,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertNotEquals($expected, $s->config('my_module'));
     }
 
-    /************************************************
-     * MODES
-     ************************************************/
-
     /**
      * Test default mode
      */
@@ -255,11 +234,9 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testGetModeFromSettings()
     {
-        $s = new Application(array(
-            'mode' => 'test'
-        ));
+        $s = new Application(array('mode' => 'test'));
         $this->assertEquals('test', $s->getMode());
-        }
+    }
 
     /**
      * Test mode configuration
@@ -314,10 +291,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('production', $s->getMode());
     }
 
-    /************************************************
-     * ROUTING
-     ************************************************/
-
     /**
      * Test GENERIC route
      */
@@ -328,6 +301,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $route = $s->map('/bar', $callable);
         $this->assertInstanceOf('\Light\Mvc\Route\Route', $route);
         $this->assertEmpty($route->getHttpMethods());
+        exit();
     }
 
     /**

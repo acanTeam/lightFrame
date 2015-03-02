@@ -343,27 +343,27 @@ class Route
             array($this, 'matchesCallback'),
             str_replace(')', ')?', (string)$this->pattern)
         );
-        if (substr($this->pattern, -1) === '/') {
-            $patternAsRegex .= '?';
-        }
-
+echo "\n" . $patternAsRegex . '----';
+        //echo $patternAsRegex;
+        $patternAsRegex .= substr($this->pattern, -1) === '/' ? '?' : '';
         $regex = '#^' . $patternAsRegex . '$#';
-
-        if ($this->caseSensitive === false) {
-            $regex .= 'i';
-        }
+        $regex .= $this->caseSensitive === false ? 'i' : '';
+echo $patternAsRegex . "----" . $regex . "\n";
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if (!preg_match($regex, $resourceUri, $paramValues)) {
             return false;
         }
+var_dump($paramValues);
         foreach ($this->paramNames as $name) {
-            if (isset($paramValues[$name])) {
-                if (isset($this->paramNamesPath[$name])) {
-                    $this->params[$name] = explode('/', urldecode($paramValues[$name]));
-                } else {
-                    $this->params[$name] = urldecode($paramValues[$name]);
-                }
+            if (!isset($paramValues[$name])) {
+                continue;
+            }
+
+            if (isset($this->paramNamesPath[$name])) {
+                $this->params[$name] = explode('/', urldecode($paramValues[$name]));
+            } else {
+                $this->params[$name] = urldecode($paramValues[$name]);
             }
         }
 
@@ -377,29 +377,18 @@ class Route
      */
     protected function matchesCallback($m)
     {
+        var_dump($m);
         $this->paramNames[] = $m[1];
         if (isset($this->conditions[$m[1]])) {
             return '(?P<' . $m[1] . '>' . $this->conditions[$m[1]] . ')';
         }
+
         if (substr($m[0], -1) === '+') {
             $this->paramNamesPath[$m[1]] = 1;
-
             return '(?P<' . $m[1] . '>.+)';
         }
 
         return '(?P<' . $m[1] . '>[^/]+)';
-    }
-
-    /**
-     * Set route name
-     * @param string $name The name of the route
-     * @return \Light\Route
-     */
-    public function name($name)
-    {
-        $this->setName($name);
-
-        return $this;
     }
 
     /**

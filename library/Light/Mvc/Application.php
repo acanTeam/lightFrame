@@ -68,7 +68,7 @@ class Application
         $this->container['configs'] = array_merge(static::getDefaultConfigs(), $configs);
 
         // Default environment
-        $this->container->singleton('environment', function ($c) {
+        $this->container->singleton('environment', function () {
             return \Light\Mvc\Environment::getInstance();
         });
 
@@ -78,12 +78,12 @@ class Application
         });
 
         // Default response
-        $this->container->singleton('response', function ($c) {
+        $this->container->singleton('response', function () {
             return new \Light\Http\Response();
         });
 
         // Default router
-        $this->container->singleton('router', function ($c) {
+        $this->container->singleton('router', function () {
             return new \Light\Mvc\Router();
         });
 
@@ -164,8 +164,9 @@ class Application
 
     /**
      * Get application instance by name
-     * @param  string    $name The name of the Light application
-     * @return \Light\Light|null
+     *
+     * @param string $name The name of the Light application
+     * @return \Light\Mvc\Application|null
      */
     public static function getInstance($name = 'default')
     {
@@ -251,29 +252,24 @@ class Application
         $c = $this->container;
 
         if (is_array($name)) {
-            if (true === $value) {
-                $c['configs'] = array_merge_recursive($c['configs'], $name);
-            } else {
-                $c['configs'] = array_merge($c['configs'], $name);
-            }
-        } elseif (func_num_args() === 1) {
-            return isset($c['configs'][$name]) ? $c['configs'][$name] : null;
-        } else {
-            $configs = $c['configs'];
-            $configs[$name] = $value;
-            $c['configs'] = $configs;
+            $c['configs'] = true === $value ? array_merge_recursive($c['configs'], $name) : array_merge($c['configs'], $name);
+            return ;
         }
-    }
 
-    /********************************************************************************
-    * Application Modes
-    *******************************************************************************/
+        if (func_num_args() === 1) {
+            return isset($c['configs'][$name]) ? $c['configs'][$name] : null;
+        }
+       
+        $configs = $c['configs'];
+        $configs[$name] = $value;
+        $c['configs'] = $configs;
+    }
 
     /**
      * Get application mode
      *
      * This method determines the application mode. It first inspects the $_ENV
-     * superglobal for key `SLIM_MODE`. If that is not found, it queries
+     * superglobal for key `LIGHT_MODE`. If that is not found, it queries
      * the `getenv` function. Else, it uses the application `mode` setting.
      *
      * @return string
@@ -311,10 +307,6 @@ class Application
     {
         return $this->logger;
     }
-
-    /********************************************************************************
-    * Routing
-    *******************************************************************************/
 
     /**
      * Add GET|POST|PUT|PATCH|DELETE route

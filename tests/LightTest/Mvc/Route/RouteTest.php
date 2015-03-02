@@ -2,22 +2,27 @@
 
 use Light\Mvc\Route\Route;
 
-class LazyInitializeTestClass {
+class LazyInitializeTestClass
+{
     public static $initialized = false;
 
-    public function __construct() {
+    public function __construct()
+    {
         self::$initialized = true;
     }
 
-    public function foo() {
+    public function foo()
+    {
     }
 }
 
-class FooTestClass {
+class FooTestClass
+{
     public static $foo_invoked = false;
     public static $foo_invoked_args = array();
 
-    public function foo() {
+    public function foo()
+    {
         self::$foo_invoked = true;
         self::$foo_invoked_args = func_get_args();
     }
@@ -46,7 +51,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetName()
     {
         $route = new Route('/foo', function () {});
-        $route->name('foo'); // <-- Alias for `setName()`
+        $route->setName('foo'); 
 
         $this->assertAttributeEquals('foo', 'name', $route);
     }
@@ -111,7 +116,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $callable = function () {
             echo 'Foo';
         };
-        $route = new Route('/foo', $callable); // <-- Called inside __construct()
+        $route = new Route('/foo', $callable); 
 
         $this->assertAttributeSame($callable, 'callable', $route);
     }
@@ -119,46 +124,41 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetCallableWithInvalidArgument()
     {
         $this->setExpectedException('\InvalidArgumentException');
-        $route = new Route('/foo', 'doesNotExist'); // <-- Called inside __construct()
+        $route = new Route('/foo', 'doesNotExist');
     }
 
     public function testGetParams()
     {
-        $route = new Route('/hello/:first/:last', function () {});
-        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
-
-        $this->assertEquals(array(
-            'first' => 'mr',
-            'last' => 'anderson'
-        ), $route->getParams());
+        $route = new Route('/hello/:first/:last/', function () {});
+        $route->matches('/hello/mr/aa/anderson');
+        $array = array('first' => 'mr', 'last' => 'anderson');
+        $this->assertEquals($array, $route->getParams());
     }
 
     public function testSetParams()
     {
-        $route = new Route('/hello/:first/:last', function () {});
-        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
-        $route->setParams(array(
-            'first' => 'agent',
-            'last' => 'smith'
-        ));
+        $route = new Route('/foo', function () {});
 
-        $this->assertAttributeEquals(array(
+        $array = array(
             'first' => 'agent',
-            'last' => 'smith'
-        ), 'params', $route);
+            'last' => 'smith',
+        );
+        $route->setParams($array);
+        $this->assertAttributeEquals($array, 'params', $route);
     }
 
     public function testGetParam()
     {
-        $route = new Route('/hello/:first/:last', function () {});
+        $route = new Route('/foo', function () {});
 
         $property = new \ReflectionProperty($route, 'params');
         $property->setAccessible(true);
-        $property->setValue($route, array(
-            'first' => 'foo',
-            'last' => 'bar'
-        ));
 
+        $array = array(
+            'first' => 'foo',
+            'last' => 'bar',
+        );
+        $property->setValue($route, $array);
         $this->assertEquals('foo', $route->getParam('first'));
     }
 
@@ -166,28 +166,27 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('InvalidArgumentException');
 
-        $route = new Route('/hello/:first/:last', function () {});
+        $route = new Route('/foo', function () {});
 
         $property = new \ReflectionProperty($route, 'params');
         $property->setAccessible(true);
-        $property->setValue($route, array(
-            'first' => 'foo',
-            'last' => 'bar'
-        ));
 
+        $array = array(
+            'first' => 'foo',
+            'last' => 'bar',
+        );
+        $property->setValue($route, $array);
         $route->getParam('middle');
     }
 
     public function testSetParam()
     {
         $route = new Route('/hello/:first/:last', function () {});
-        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+        $route->matches('/hello/mr/anderson');
         $route->setParam('last', 'smith');
 
-        $this->assertAttributeEquals(array(
-            'first' => 'mr',
-            'last' => 'smith'
-        ), 'params', $route);
+        $array = array('first' => 'mr', 'last' => 'smith');
+        $this->assertAttributeEquals($array, 'params', $route);
     }
 
     public function testSetParamThatDoesNotExist()
@@ -195,8 +194,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('InvalidArgumentException');
 
         $route = new Route('/hello/:first/:last', function () {});
-        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
-        $route->setParam('middle', 'smith'); // <-- Should trigger InvalidArgumentException
+        $route->matches('/hello/mr/anderson');
+        $route->setParam('middle', 'smith');
     }
 
     public function testMatches()
