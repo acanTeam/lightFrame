@@ -104,9 +104,9 @@ class View
     {
         if (!is_null($key)) {
             return isset($this->datas[$key]) ? $this->datas[$key] : null;
-        } else {
-            return $this->datas->all();
         }
+
+        return $this->datas->all();
     }
 
     /**

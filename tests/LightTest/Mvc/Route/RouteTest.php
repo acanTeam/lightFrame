@@ -130,7 +130,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testGetParams()
     {
         $route = new Route('/hello/:first/:last/', function () {});
-        $route->matches('/hello/mr/aa/anderson');
+        $route->matches('/hello/mr/anderson');
+        //var_dump($route->getParams());$route->setCallable('\Light\Mvc\Application::getInstance');var_dump($route);exit();
         $array = array('first' => 'mr', 'last' => 'anderson');
         $this->assertEquals($array, $route->getParams());
     }
@@ -236,6 +237,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         ));
 
         $this->assertTrue($route->matches('/hello/Josh/and/John'));
+        $this->assertFalse($route->matches('/hello/Jo/and/John'));
     }
 
     public function testMatchesWithConditionsIsFalse()
@@ -257,7 +259,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testMatchesWithValidRfc2396PathComponent()
     {
-        $symbols = ':@&=$,';
+        $symbols = ':@+&=$,';
         $route = new Route('/rfc2386/:symbols', function () {});
 
         $this->assertTrue($route->matches('/rfc2386/' . $symbols));
@@ -320,43 +322,40 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function testSetDefaultConditions()
     {
-        Route::setDefaultConditions(array(
+        $defaultConditions = array(
             'id' => '\d+'
-        ));
+        );
+        Route::setDefaultConditions($defaultConditions);
 
         $property = new \ReflectionProperty('\Light\Mvc\Route\Route', 'defaultConditions');
         $property->setAccessible(true);
 
-        $this->assertEquals(array(
-            'id' => '\d+'
-        ), $property->getValue());
+        $this->assertEquals($defaultConditions, $property->getValue());
     }
 
     public function testGetDefaultConditions()
     {
+        $conditions = array(
+            'id' => '\d+'
+        );
         $property = new \ReflectionProperty('\Light\Mvc\Route\Route', 'defaultConditions');
         $property->setAccessible(true);
-        $property->setValue(array(
-            'id' => '\d+'
-        ));
+        $property->setValue($conditions);
 
-        $this->assertEquals(array(
-            'id' => '\d+'
-        ), Route::getDefaultConditions());
+        $this->assertEquals($conditions, Route::getDefaultConditions());
     }
 
     public function testDefaultConditionsAssignedToInstance()
     {
+        $conditions = array(
+            'id' => '\d+'
+        );
         $staticProperty = new \ReflectionProperty('\Light\Mvc\Route\Route', 'defaultConditions');
         $staticProperty->setAccessible(true);
-        $staticProperty->setValue(array(
-            'id' => '\d+'
-        ));
+        $staticProperty->setValue($conditions);
         $route = new Route('/foo', function () {});
 
-        $this->assertAttributeEquals(array(
-            'id' => '\d+'
-        ), 'conditions', $route);
+        $this->assertAttributeEquals($conditions, 'conditions', $route);
     }
 
     public function testMatchesWildcard()
@@ -451,7 +450,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('InvalidArgumentException');
 
         $route = new Route('/foo', function () {});
-        $route->setMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
+        $route->setMiddleware('doesNotExist');
     }
 
     public function testSetMiddlewareWithArrayWithInvalidArgument()
@@ -532,7 +531,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('Hello josh');
         $route = new Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->matches('/hello/josh'); //<-- Extracts params from resource URI
+        $route->matches('/hello/josh');
         $route->dispatch();
     }
 
@@ -564,7 +563,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->setMiddleware(function ($route) {
             echo $route->getName();
         });
-        $route->matches('/foo'); //<-- Extracts params from resource URI
+        $route->matches('/foo');
         $route->dispatch();
     }
 }

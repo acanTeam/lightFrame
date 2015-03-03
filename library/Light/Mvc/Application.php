@@ -48,12 +48,12 @@ class Application
      * @var array
      */
     protected $hooks = array(
-        'light.before' => array(array()),
-        'light.before.router' => array(array()),
-        'light.before.dispatch' => array(array()),
-        'light.after.dispatch' => array(array()),
-        'light.after.router' => array(array()),
-        'light.after' => array(array())
+        'light.before' => array(),
+        'light.before.router' => array(),
+        'light.before.dispatch' => array(),
+        'light.after.dispatch' => array(),
+        'light.after.router' => array(),
+        'light.after' => array()
     );
 
     /**
@@ -490,19 +490,17 @@ class Application
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound ($callable = null)
+    public function notFound($callable = null)
     {
         if (is_callable($callable)) {
             $this->notFound = $callable;
-        } else {
-            ob_start();
-            if (is_callable($this->notFound)) {
-                call_user_func($this->notFound);
-            } else {
-                call_user_func(array($this, 'defaultNotFound'));
-            }
-            $this->halt(404, ob_get_clean());
+            return ;
         }
+
+        ob_start();
+        $this->notFound = is_callable($this->notFound) ? $this->notFound : array($this, 'defaultNotFound');
+        call_user_func($this->notFound);
+        $this->halt(404, ob_get_clean());
     }
 
     /**
@@ -634,10 +632,6 @@ class Application
         return $this->view;
     }
 
-    /********************************************************************************
-    * Rendering
-    *******************************************************************************/
-
     /**
      * Render a template
      *
@@ -664,10 +658,6 @@ class Application
         $data['contentLayout'] = $this->view->fetch($template, $data);
         $this->render($layout, $data, $status);
     }
-
-    /********************************************************************************
-    * HTTP Caching
-    *******************************************************************************/
 
     /**
      * Set Last-Modified HTTP Response Header
@@ -753,10 +743,6 @@ class Application
         }
         $this->response->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
-
-    /********************************************************************************
-    * HTTP Cookies
-    *******************************************************************************/
 
     /**
      * Set HTTP cookie to be sent with the HTTP response
@@ -1042,21 +1028,14 @@ class Application
         }
     }
 
-    /********************************************************************************
-    * Hooks
-    *******************************************************************************/
-
     /**
      * Assign hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $callable   A callable object
-     * @param  int      $priority   The hook priority; 0 = high, 10 = low
+     * @param string $name The hook name
+     * @param mixed $callable A callable object
+     * @param int $priority The hook priority; 0 = high, 10 = low
      */
     public function hook($name, $callable, $priority = 10)
     {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
-        }
         if (is_callable($callable)) {
             $this->hooks[$name][(int) $priority][] = $callable;
         }
@@ -1064,25 +1043,22 @@ class Application
 
     /**
      * Invoke hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $hookArg    (Optional) Argument for hooked functions
+     * @param string $name The hook name
+     * @param mixed $hookArg (Optional) Argument for hooked functions
      */
     public function applyHook($name, $hookArg = null)
     {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
+        if (!isset($this->hooks[$name]) || empty($this->hooks[$name])) {
+            return ;
         }
-        if (!empty($this->hooks[$name])) {
-            // Sort by priority, low to high, if there's more than one priority
-            if (count($this->hooks[$name]) > 1) {
-                ksort($this->hooks[$name]);
-            }
-            foreach ($this->hooks[$name] as $priority) {
-                if (!empty($priority)) {
-                    foreach ($priority as $callable) {
-                        call_user_func($callable, $hookArg);
-                    }
+
+        ksort($this->hooks[$name]);
+        foreach ($this->hooks[$name] as $priority) {
+            foreach ($priority as $callable) {
+                if (!is_callable($callable)) {
+                    continue;
                 }
+                call_user_func($callable, $hookArg);
             }
         }
     }
@@ -1095,16 +1071,16 @@ class Application
      * Else, all listeners are returned as an associative array whose
      * keys are hook names and whose values are arrays of listeners.
      *
-     * @param  string     $name     A hook name (Optional)
+     * @param string $name A hook name (Optional)
      * @return array|null
      */
     public function getHooks($name = null)
     {
         if (!is_null($name)) {
             return isset($this->hooks[(string) $name]) ? $this->hooks[(string) $name] : null;
-        } else {
-            return $this->hooks;
         }
+        
+        return $this->hooks;
     }
 
     /**
@@ -1119,11 +1095,12 @@ class Application
     public function clearHooks($name = null)
     {
         if (!is_null($name) && isset($this->hooks[(string) $name])) {
-            $this->hooks[(string) $name] = array(array());
-        } else {
-            foreach ($this->hooks as $key => $value) {
-                $this->hooks[$key] = array(array());
-            }
+            $this->hooks[(string) $name] = null;
+            return ;
+        }
+
+        foreach ($this->hooks as $key => $value) {
+            $this->hooks[$key] = null;
         }
     }
 
@@ -1143,10 +1120,6 @@ class Application
         $middleware->setNextMiddleware($this->middleware[0]);
         array_unshift($this->middleware, $middleware);
     }
-
-    /********************************************************************************
-    * Runner
-    *******************************************************************************/
 
     /**
      * Run

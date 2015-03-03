@@ -185,6 +185,7 @@ class Route
     public function setName($name)
     {
         $this->name = (string)$name;
+        return $this;
     }
 
     /**
@@ -343,18 +344,18 @@ class Route
             array($this, 'matchesCallback'),
             str_replace(')', ')?', (string)$this->pattern)
         );
-echo "\n" . $patternAsRegex . '----';
+
         //echo $patternAsRegex;
         $patternAsRegex .= substr($this->pattern, -1) === '/' ? '?' : '';
         $regex = '#^' . $patternAsRegex . '$#';
         $regex .= $this->caseSensitive === false ? 'i' : '';
-echo $patternAsRegex . "----" . $regex . "\n";
+
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if (!preg_match($regex, $resourceUri, $paramValues)) {
             return false;
         }
-var_dump($paramValues);
+
         foreach ($this->paramNames as $name) {
             if (!isset($paramValues[$name])) {
                 continue;
@@ -377,7 +378,6 @@ var_dump($paramValues);
      */
     protected function matchesCallback($m)
     {
-        var_dump($m);
         $this->paramNames[] = $m[1];
         if (isset($this->conditions[$m[1]])) {
             return '(?P<' . $m[1] . '>' . $this->conditions[$m[1]] . ')';

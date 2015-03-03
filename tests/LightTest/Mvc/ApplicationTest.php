@@ -29,11 +29,11 @@ class EchoErrorLogger
 //Mock extending class
 class Derived extends Application
 {
-	public static function getDefaultSettings()
+	public static function getDefaultConfigs()
 	{
         return array_merge(
             array("late-static-binding" => true)
-        , parent::getDefaultSettings());
+        , parent::getDefaultConfigs());
 	}
 }
 
@@ -301,7 +301,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $route = $s->map('/bar', $callable);
         $this->assertInstanceOf('\Light\Mvc\Route\Route', $route);
         $this->assertEmpty($route->getHttpMethods());
-        exit();
     }
 
     /**
@@ -527,10 +526,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('jo hnsmi th', $s->response()->body());
     }
 
-    /************************************************
-     * VIEW
-     ************************************************/
-
     /**
      * Test set view with string class name
      */
@@ -548,7 +543,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     public function testSetLightViewFromInstance()
     {
         $s = new Application();
-        $this->assertInstanceOf('\Light\View\View', $s->view());
         $s->view(new CustomView());
         $this->assertInstanceOf('CustomView', $s->view());
     }
@@ -564,10 +558,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $s->view('CustomView');
         $this->assertSame($data, $s->view()->getData());
     }
-
-    /************************************************
-     * RENDERING
-     ************************************************/
 
     /**
      * Test template path is passed to view
@@ -611,26 +601,18 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('test output bar', $body);
     }
 
-    /************************************************
-     * LOG
-     ************************************************/
-
     /**
-     * Test get log
+     * Test get logger
      *
      * This asserts that a Light app has a default Log
-     * upon instantiation. The Log itself is tested
+     * upon instantiation. The Logger itself is tested
      * separately in another file.
      */
-    public function testGetLog()
+    public function testGetLogger()
     {
         $s = new Application();
         $this->assertInstanceOf('\Light\Logger\Logger', $s->getLogger());
     }
-
-    /************************************************
-     * HTTP CACHING
-     ************************************************/
 
     /**
      * Test Last-Modified match
@@ -801,10 +783,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($header['Expires'], $expectedDate);
     }
 
-    /************************************************
-     * COOKIES
-     ************************************************/
-
     /**
      * Set cookie
      *
@@ -897,10 +875,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('', $cookie['value']);
         $this->assertLessThan(time(), $cookie['expires']);
     }
-
-    /************************************************
-     * HELPERS
-     ************************************************/
 
     /**
      * Test get filesystem path to Light app root directory
@@ -1103,7 +1077,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     public function testLightUrlFor()
     {
         $s = new Application();
-        $s->get('/hello/:name', function () {})->name('hello');
+        $s->get('/hello/:name', function () {})->setName('hello');
         $this->assertEquals('/foo/hello/Josh', $s->urlFor('hello', array('name' => 'Josh'))); //<-- Prepends physical path!
     }
 
@@ -1123,10 +1097,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/somewhere/else', $header['Location']);
         $this->assertEquals('', $body);
     }
-
-    /************************************************
-     * RUNNER
-     ************************************************/
 
     /**
      * Test that runner sends headers and body
@@ -1248,10 +1218,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Foo', $_SESSION['light.flash']['info']);
     }
 
-    /************************************************
-     * NOT FOUND HANDLING
-     ************************************************/
-
     /**
      * Test custom Not Found handler
      */
@@ -1268,10 +1234,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Not Found', $body);
     }
 
-    /************************************************
-     * ERROR HANDLING
-     ************************************************/
-
     /**
      * Test default and custom error handlers
      *
@@ -1284,7 +1246,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     public function testLightError()
     {
         $s = new Application(array(
-            "log.enabled" => false
+            "logger.enabled" => false
         ));
         $s->get('/bar', function () use ($s) {
             $s->error();
@@ -1305,17 +1267,17 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
     {
         $s = new Application(array('debug' => false));
-        $s->container->singleton('log', function ($c) {
+        $s->container->singleton('logger', function ($c) {
             return new EchoErrorLogger();
         });
         $s->get('/bar', function () use ($s) {
-            //throw new \InvalidArgumentException('my specific error message');
+            throw new \InvalidArgumentException('my specific error message');
         });
 
         ob_start();
         $s->run();
         $output = ob_get_clean();
-        //$this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
+        $this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
     }
 
     /**
@@ -1472,10 +1434,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $s->notFound($notFoundCallback);
     }
 
-    /************************************************
-     * HOOKS
-     ************************************************/
-
     /**
      * Test hook listener
      *
@@ -1517,7 +1475,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $app = new Application();
         $callable = 'test'; //NOT callable
         $app->hook('test.hook.one', $callable);
-        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+        $this->assertEquals(null, $app->getHooks('test.hook.one'));
     }
 
     /**
@@ -1535,7 +1493,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     {
         $app = new Application();
         $app->applyHook('test.hook.one');
-        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+        $this->assertEquals(null, $app->getHooks('test.hook.one'));
     }
 
     /**
@@ -1555,11 +1513,11 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $app->hook('test.hook.one', function () {});
         $app->hook('test.hook.two', function () {});
         $app->clearHooks('test.hook.two');
-        $this->assertEquals(array(array()), $app->getHooks('test.hook.two'));
+        $this->assertEquals(null, $app->getHooks('test.hook.two'));
         $hookOne = $app->getHooks('test.hook.one');
         $this->assertTrue(count($hookOne[10]) === 1);
         $app->clearHooks();
-        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+        $this->assertEquals(null, $app->getHooks('test.hook.one'));
     }
 
     /**
@@ -1576,6 +1534,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     public function testDerivedClassCanOverrideStaticFunction()
     {
         $app = new Derived();
-        //$this->assertEquals($app->config("late-static-binding"), true);
+        $this->assertEquals($app->config("late-static-binding"), true);
     }
 }

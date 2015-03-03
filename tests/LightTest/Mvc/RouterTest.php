@@ -21,7 +21,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testMap()
     {
         $router = new Router();
-        $route = new Route('/foo', function() {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
         $router->map($route);
 
         $this->assertAttributeContains($route, 'routes', $router);
@@ -33,14 +33,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testAddNamedRoute()
     {
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
         $router->addNamedRoute('foo', $route);
 
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
 
-		$rV = $property->getValue($router);
-        $this->assertSame($route, $rV['foo']);
+		$namedRoutes = $property->getValue($router);
+        $this->assertSame($route, $namedRoutes['foo']);
     }
 
     /**
@@ -51,7 +51,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('RuntimeException');
 
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
         $router->addNamedRoute('foo', $route);
         $router->addNamedRoute('foo', $route);
     }
@@ -62,7 +62,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetNamedRoute()
     {
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
 
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
@@ -78,8 +78,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetNamedRoutes()
     {
         $router = new Router();
-        $route1 = new Route('/foo', function () {});
-        $route2 = new Route('/bar', function () {});
+        $route1 = new Route('/foo', '\Light\Mvc\Application::getInstance');
+        $route2 = new Route('/bar', '\Light\Mvc\Application::getInstance');
 
         // Init router routes to array
         $propertyRouterRoutes = new \ReflectionProperty($router, 'routes');
@@ -107,7 +107,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testHasNamedRoute()
     {
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
 
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
@@ -123,7 +123,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetCurrentRoute()
     {
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
 
         $property = new \ReflectionProperty($router, 'currentRoute');
         $property->setAccessible(true);
@@ -138,7 +138,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetCurrentRouteIfMatchedRoutes()
     {
         $router = new Router();
-        $route = new Route('/foo', function () {});
+        $route = new Route('/foo', '\Light\Mvc\Application::getInstance');
 
         $propertyMatchedRoutes = new \ReflectionProperty($router, 'matchedRoutes');
         $propertyMatchedRoutes->setAccessible(true);
@@ -173,13 +173,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
         $router = new Router();
 
-        $route1 = new Route('/foo', function () {});
+        $route1 = new Route('/foo', '\Light\Mvc\Application::getInstance');
 		$route1 = $route1->via('GET');
 
-        $route2 = new Route('/foo', function () {});
+        $route2 = new Route('/foo', '\Light\Mvc\Application::getInstance');
 		$route2 = $route2->via('POST');
 
-        $route3 = new Route('/bar', function () {});
+        $route3 = new Route('/bar', '\Light\Mvc\Application::getInstance');
 		$route3 = $route3->via('PUT');
 
         $routes = new \ReflectionProperty($router, 'routes');
@@ -196,18 +196,19 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
         $router = new Router();
 
-        $route1 = new Route('/hello/:first/:last', function () {});
-        $route1 = $route1->via('GET')->name('hello');
+        $route1 = new Route('/hello/:first/:last', '\Light\Mvc\Application::getInstance');
+        $route1 = $route1->via('GET')->setName('hello');
 
-        $route2 = new Route('/path/(:foo\.:bar)', function () {});
-        $route2 = $route2->via('GET')->name('regexRoute');
+        $route2 = new Route('/path/(:foo\.:bar)', '\Light\Mvc\Application::getInstance');
+        $route2 = $route2->via('GET')->setName('regexRoute');
 
         $routes = new \ReflectionProperty($router, 'namedRoutes');
         $routes->setAccessible(true);
-        $routes->setValue($router, array(
+        $namedRoutes = array(
             'hello' => $route1,
             'regexRoute' => $route2
-        ));
+        );
+        $routes->setValue($router, $namedRoutes);
 
         $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', array('first' => 'Josh', 'last' => 'Lockhart')));
         $this->assertEquals('/path/Hello.Josh', $router->urlFor('regexRoute', array('foo' => 'Hello', 'bar' => 'Josh')));

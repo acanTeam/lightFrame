@@ -65,19 +65,20 @@ class Router
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
-        if ($reload || is_null($this->matchedRoutes)) {
-            $this->matchedRoutes = array();
-            foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
-                    continue;
-                }
-
-                if ($route->matches($resourceUri)) {
-                    $this->matchedRoutes[] = $route;
-                }
-            }
+        if (!$reload && !is_null($this->matchedRoutes)) {
+            return $this->matchedRoutes;
         }
 
+        $this->matchedRoutes = array();
+        foreach ($this->routes as $route) {
+            if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod('ANY')) {
+                continue;
+            }
+
+            if ($route->matches($resourceUri)) {
+                $this->matchedRoutes[] = $route;
+            }
+        }
         return $this->matchedRoutes;
     }
 
@@ -85,7 +86,7 @@ class Router
      * Add a route object to the router
      * @param  Route     $route      The Light Route
      */
-    public function map(\Light\Mvc\Route\Route $route)
+    public function map(Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
 
@@ -148,6 +149,7 @@ class Router
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
+
         $search = array();
         foreach ($params as $key => $value) {
             $search[] = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
@@ -160,9 +162,10 @@ class Router
 
     /**
      * Add named route
-     * @param  string            $name   The route name
-     * @param  Route       $route  The route object
-     * @throws \RuntimeException         If a named route already exists with the same name
+     *
+     * @param string $name The route name
+     * @param Route $route The route object
+     * @throws \RuntimeException If a named route already exists with the same name
      */
     public function addNamedRoute($name, Route $route)
     {
@@ -191,12 +194,8 @@ class Router
      */
     public function getNamedRoute($name)
     {
-        $this->getNamedRoutes();
-        if ($this->hasNamedRoute($name)) {
-            return $this->namedRoutes[(string) $name];
-        } else {
-            return null;
-        }
+        $result = $this->hasNamedRoute($name) ? $this->namedRoutes[(string) $name] : null;
+        return $result;
     }
 
     /**
